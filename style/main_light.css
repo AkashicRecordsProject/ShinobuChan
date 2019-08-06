@@ -1,0 +1,44 @@
+
+:root {
+    --text-color: #ffffff;
+    --image-background-color: #e0e3e0;
+    --highlight-color: #c5c8c6;
+    --background-color: #fff;
+    --sidebar-background-color: #d8d5d4;
+    --large-image-background-color: rgba(00, 00, 00, 0.8);
+    --header-background-color: #d8d5d4;
+    --header-border-background-color: #d8d5d4;
+    --container-background-color: #eee;
+    --header-height: 45px;
+    --image-invert: 0;
+    --image-brightness: 0;
+    --clear-button-color: #ff6a7b;
+    --clear-highlight-button-color: #E65162;
+    --search-button-color: #92BC73;
+    --search-highlight-button-color: #ABD58C;
+    --setting-button-color: #805E9B;
+    --setting-highlight-button-color: #B391CE;
+    --setting-selected-button-color: #B391CE;
+    --tag-button-color: #5B81A0;
+    --tag-highlight-button-color: #8EB4D3;
+    --tag-selected-button-color: #8EB4D3;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+
+}
+
+#previousPageButton, #nextPageButton{
+    filter: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bfbfbf;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}

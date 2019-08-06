@@ -1,0 +1,39 @@
+:root {
+    --text-color: #c5c8c6;
+    --highlight-color: #c5c8c6;
+    --background-color: #1d1f21;
+    --header-background-color: #282a2e;
+    --header-border-background-color: #1d1f21;
+    --container-background-color: #eee;
+    --header-height: 45px;
+    --image-invert: 1;
+    --image-brightness: 0;
+    --background-image: url('../images/mascot_dark.png');
+}
+
+/*
+#header {
+    color: var(--text-color);
+    background-color: var(--header-background-color);
+    border-bottom:solid var(--header-border-background-color) 1px;
+}
+
+body {
+    background: var(--background-color);
+    background-image: var(--background-image);
+    background-repeat: no-repeat;
+    background-size: 1920px 600px;
+    background-position: 100px 100%; 
+}
+
+img {
+    filter: brightness(var(--image-brightness)) invert(var(--image-invert));
+}
+
+
+iframe .table {
+    background: #000;
+    color: var(--post-text-color);
+}
+
+*/

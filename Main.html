@@ -1,0 +1,69 @@
+<!doctype <!DOCTYPE html>
+<html>
+  <head>
+    <title>ShinobuChan</title>
+    <link rel="stylesheet" type="text/css" href="./style/main.css">
+    <link rel="shortcut icon" type="image/png" href="./images/icon.png" />
+    <script src="./javascript/jquery.min.js" language="javascript" charset="utf-8"></script>
+    <script src="./javascript/main.js" language="javascript" charset="utf-8"></script>
+  </head>
+
+  <body">
+    <img id="mascot" src="./images/empty.png"></a>
+
+    <div id="header">
+        <input type="number" placeholder="page" id="pageInput"></input>
+        <div id="arrowButton" style="float:left;">
+            <img id="previousPageButton" src="./images/back.png"></a>
+        </div>
+        <div id="arrowButton" style="float:right;">
+            <img id="nextPageButton" src="./images/forward.png"></a>
+        </div>
+        <button id="clearButton">Clear</button>
+    </div>
+
+    <div id="selectedImageContainer">
+        <img class="selectedImage">
+        <video controls muted loop class="selectedWebM" width="80%" height="80%" controls>
+            <sourcetype="video/x-webm> </video>
+    </div>
+
+    <div id=sidebarContainer>
+
+      <div id="searchbarContainer">
+          <input list="tags" type="text" placeholder="Search.." id="searchbar">
+          <datalist id="tags"></datalist>
+          <select id="searchResolution">
+              <option value="1">Any</option>>
+              <option value="4">1280x720</option>>
+              <option value="5">1920x1080</option>>
+              <option value="6">2048x1080</option>>
+              <option value="7">2560x1440</option>>
+          </select>
+          <img id="searchButton" src="./images/search_icon.png">
+      </div>
+
+      <div id="booruSelectContainer">
+          <button class="booruItem" id="danbooruButton">Danbooru</button>
+          <button class="booruItem" id="konachanButton">Konachan</button>
+          <button class="booruItem" id="yandereButton">Yandere</button>
+          <button class="booruItem" id="sfwButton">SFW</button>
+          <button class="booruItem" id="ecchiButton">Ecchi</button>
+          <button class="booruItem" id="hentaiButton">Hentai</button>
+          <button class="booruItem" id="fullImageButton">Full Size Images</button>
+      </div>
+
+      <div id="tagContainer"></div>
+      <div id="imageTagContainer"></div>
+      <div><img src="./images/loading.svg"></div>
+
+    </div>
+
+    <div id="root">
+        <div id="loading"><img src="./images/loading.svg"></div>
+        <div id="catalogContainer"></div>
+    </div>
+
+  </body>
+
+</html>
