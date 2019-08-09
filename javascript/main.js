@@ -9,17 +9,18 @@ $(document).ready(function() {
     var selectedTagList = selectedTagList = "";
     var fullImageLink = "";
     
-    const classBooruItemDisabled = "booruItemDisabled";
+    const classSidebarSettingsButtonDisabled = "sidebarSettingsButtonDisabled";
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
     const app = document.getElementById('root');
     const catalogContainer = document.getElementById('catalogContainer');
     const searchbar = document.getElementById('searchbar');
     const searchResolution = document.getElementById("searchResolution");
+    const pageInput = document.getElementById("pageInput")
 
-    const $selectedImageContainer = $("#selectedImageContainer");
-    const $selectedImage = $(".selectedImage");
-    const $selectedWebM = $(".selectedWebM");
+    const $expandedImageContainer = $("#expandedImageContainer");
+    const $expandedImage = $(".expandedImage");
+    const $expandedWebM = $(".expandedWebM");
     const $previousPageButton = $("#previousPageButton");
     const $nextPageButton = $("#nextPageButton");
     const $danbooruButton = $("#danbooruButton");
@@ -31,8 +32,8 @@ $(document).ready(function() {
     const $yandereButton = $("#yandereButton");
     const $mascot = $("#mascot");
     const $loading = $("#loading")
-    const $tagContainer = $("#tagContainer");
-    const $imageTagContainer = $("#imageTagContainer");
+    const $sidebarAllTagContainer = $("#sidebarAllTagContainer");
+    const $sidebarImageTagContainer = $("#sidebarImageTagContainer");
 
     var useFullSizeImage = JSON.parse(localStorage.getItem('useFullSizeImage'));
     var showSFW = JSON.parse(localStorage.getItem('showSFW'));
@@ -44,7 +45,7 @@ $(document).ready(function() {
     var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme'));
 
     $mascot.hide();
-    $selectedImageContainer.hide();
+    $expandedImageContainer.hide();
     $previousPageButton.hide();
 
     if (useFullSizeImage == null)
@@ -72,35 +73,38 @@ $(document).ready(function() {
         isLightTheme = false;
 
     if (useFullSizeImage == false)
-        $fullImageButton.addClass(classBooruItemDisabled);
+        $fullImageButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (showSFW == false)
-        $sfwButton.addClass(classBooruItemDisabled);
+        $sfwButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (showEcchi == false)
-        $ecchiButton.addClass(classBooruItemDisabled);
+        $ecchiButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (showHentai == false)
-        $hentaiButton.addClass(classBooruItemDisabled);
+        $hentaiButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (searchDanbooru == false)
-        $danbooruButton.addClass(classBooruItemDisabled);
+        $danbooruButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (searchKonachan == false)
-        $konachanButton.addClass(classBooruItemDisabled);
+        $konachanButton.addClass(classSidebarSettingsButtonDisabled);
 
     if (searchYandere == false)
-        $yandereButton.addClass(classBooruItemDisabled);
+        $yandereButton.addClass(classSidebarSettingsButtonDisabled);
 
 
     setTheme(isLightTheme);
 
-    document.getElementById("pageInput").addEventListener("keyup", function(event) {
+    pageInput.addEventListener("keyup", function(event) {
 
         if (event.keyCode === 13) {
 
             if (this.value < 1)
                 this.value = 1;
+
+            if (this.value >= 2)
+                $previousPageButton.show();
 
             pageNumber = this.value;
             goToPage();
@@ -125,43 +129,43 @@ $(document).ready(function() {
             if (event.keyCode === 70) {
                 $fullImageButton.click();
 
-                if ($selectedImageContainer.is(":visible"))
+                if ($expandedImageContainer.is(":visible"))
                     $(".image")[currentImagePosition].click();
             }
 
             if (event.keyCode === 84) {
                 isLightTheme = !isLightTheme;
-                localStorage.setItem("isLightTheme", );
+                localStorage.setItem("isLightTheme", isLightTheme);
                 setTheme(isLightTheme);
             }
         }
 
-        if ($selectedImageContainer.is(":hidden"))
+        if ($expandedImageContainer.is(":hidden"))
             return;
 
         if (event.keyCode === 39) {
             try {
                 $(".image")[currentImagePosition + 1].click();
             } catch (error) {
-                selectedImageContainer.click();
+                expandedImageContainer.click();
             }
         } else if (event.keyCode === 37) {
 
             if (currentImagePosition >= 1)
                 $(".image")[currentImagePosition - 1].click();
             else
-                selectedImageContainer.click();
+                expandedImageContainer.click();
         } else if (event.keyCode == 40) {
 
             event.preventDefault();
-            selectedImageContainer.click();
+            expandedImageContainer.click();
         } else if (event.keyCode == 32) {
 
             event.preventDefault();
-            if ($selectedWebM[0].paused == true) {
-                $selectedWebM[0].play();
+            if ($expandedWebM[0].paused == true) {
+                $expandedWebM[0].play();
             } else {
-                $selectedWebM[0].pause();
+                $expandedWebM[0].pause();
             }
         }
 
@@ -227,9 +231,9 @@ $(document).ready(function() {
 
     function toggleSettingsItem(button, state) {
         if (state)
-            $(button).removeClass(classBooruItemDisabled);
+            $(button).removeClass(classSidebarSettingsButtonDisabled);
         else
-            $(button).addClass(classBooruItemDisabled);
+            $(button).addClass(classSidebarSettingsButtonDisabled);
     }
 
     function setTheme(isLightTheme) {
@@ -245,9 +249,9 @@ $(document).ready(function() {
 
         pageNumber++;
         goToPage();
-        $selectedImageContainer.hide();
+        $expandedImageContainer.hide();
 
-        if (pageNumber === 2)
+        if (pageNumber >= 2)
             $previousPageButton.show();
 
     });
@@ -257,7 +261,7 @@ $(document).ready(function() {
 
         pageNumber--;
         goToPage();
-        $selectedImageContainer.hide();
+        $expandedImageContainer.hide();
 
         if (pageNumber <= 1)
             $previousPageButton.hide();
@@ -334,9 +338,9 @@ $(document).ready(function() {
             oldImagePosition = currentImagePosition;
             currentImagePosition = position;
 
-            if (oldImagePosition != currentImagePosition || $imageTagContainer.is(":hidden")) {
-                $tagContainer.hide();
-                $imageTagContainer.show();
+            if (oldImagePosition != currentImagePosition || $sidebarImageTagContainer.is(":hidden")) {
+                $sidebarAllTagContainer.hide();
+                $sidebarImageTagContainer.show();
                 if (imageJson.tags != null) {
                     createImageTagList(imageJson.tags.split(" "));
                 } else {
@@ -344,9 +348,9 @@ $(document).ready(function() {
                     createImageTagList(imageJson.tag_string_general.split(" ").concat(imageJson.tag_string_character.split(" ")).concat(imageJson.tag_string_copyright.split(" ")).concat(imageJson.tag_string_artist.split(" ")));
                 }
 
-            } else if ($imageTagContainer.is(":visible")) {
-                $tagContainer.show();
-                $imageTagContainer.hide();
+            } else if ($sidebarImageTagContainer.is(":visible")) {
+                $sidebarAllTagContainer.show();
+                $sidebarImageTagContainer.hide();
             }
 
         });
@@ -354,44 +358,44 @@ $(document).ready(function() {
 
         image.onclick = function() {
 
-            $selectedImageContainer.show();
+            $expandedImageContainer.show();
             oldImagePosition = currentImagePosition;
             currentImagePosition = position;
             fullImageLink = imageJson.file_url;
 
-            $selectedImage.hide();
-            $selectedWebM.hide();
-            $selectedImage.attr("src", "");
-            $selectedWebM.attr("src", "");
+            $expandedImage.hide();
+            $expandedWebM.hide();
+            $expandedImage.attr("src", "");
+            $expandedWebM.attr("src", "");
 
             if (imageJson.width > imageJson.height)
-                $selectedImage.attr("id", "selectedImageW");
+                $expandedImage.attr("id", "expandedImageW");
             else
-                $selectedImage.attr("id", "selectedImageH");
+                $expandedImage.attr("id", "expandedImageH");
 
             if (fileExt == "webm" || fileExt == "mp4") {
-                $selectedWebM.attr("src", imageJson.file_url);
-                $selectedWebM.show();
-                $selectedWebM[0].play();
+                $expandedWebM.attr("src", imageJson.file_url);
+                $expandedWebM.show();
+                $expandedWebM[0].play();
             } else if (fileExt == "zip") {
-                $selectedWebM.attr("src", imageJson.large_file_url);
-                $selectedWebM.show();
-                $selectedWebM[0].play();
+                $expandedWebM.attr("src", imageJson.large_file_url);
+                $expandedWebM.show();
+                $expandedWebM[0].play();
             } else {
                 console.log(samepleImageURL);
 
                 if (useFullSizeImage)
-                    $selectedImage.attr("src", imageJson.file_url);
+                    $expandedImage.attr("src", imageJson.file_url);
                 else {
-                    $selectedImage.attr("src", samepleImageURL);
+                    $expandedImage.attr("src", samepleImageURL);
 
 
-                    $selectedImage.on("error", function() {
+                    $expandedImage.on("error", function() {
                         $(this).unbind("error").attr("src", samepleImageURL.replace("sample/sample-", ""));
                     });
                 }
 
-                $selectedImage.show();
+                $expandedImage.show();
 
             }
         }
@@ -401,35 +405,35 @@ $(document).ready(function() {
 
     catalogContainer.addEventListener('auxclick', function(event) {
 
-        if ($imageTagContainer.is(":visible")) {
-            $tagContainer.show();
-            $imageTagContainer.hide();
+        if ($sidebarImageTagContainer.is(":visible")) {
+            $sidebarAllTagContainer.show();
+            $sidebarImageTagContainer.hide();
         }
     });
 
-    $selectedWebM.click(function(e) {
+    $expandedWebM.click(function(e) {
         e.stopPropagation();
     });
 
-    $selectedImage.mouseup(function(e) {
+    $expandedImage.mouseup(function(e) {
         if (e.which == 2)
             window.open(fullImageLink, '_blank');
     });
 
-    $selectedImage.click(function(e) {
+    $expandedImage.click(function(e) {
         e.stopPropagation();
         try {
             $(".image")[currentImagePosition + 1].click();
         } catch (error) {
-            selectedImageContainer.click();
+            expandedImageContainer.click();
         }
 
     });
 
-    $selectedImageContainer.click(function() {
-        $selectedImageContainer.hide();
-        $selectedWebM[0].pause();
-        $selectedImage.attr("src", "");
+    $expandedImageContainer.click(function() {
+        $expandedImageContainer.hide();
+        $expandedWebM[0].pause();
+        $expandedImage.attr("src", "");
 
         if (oldImagePosition != currentImagePosition)
             currentImagePosition = -1;
@@ -440,35 +444,35 @@ $(document).ready(function() {
 
     function createImageTagList(tagList) {
 
-        while (imageTagContainer.firstChild) {
-            imageTagContainer.removeChild(imageTagContainer.firstChild);
+        while (sidebarImageTagContainer.firstChild) {
+            sidebarImageTagContainer.removeChild(sidebarImageTagContainer.firstChild);
         }
 
-        imageTagContainer.scrollTop = 100;
+        sidebarImageTagContainer.scrollTop = 100;
         tagList.sort();
 
         tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
-        createTag(tagList, imageTagContainer, false);
+        createTag(tagList, sidebarImageTagContainer, false);
     }
 
     function createTagList() {
 
-        while (tagContainer.firstChild) {
-            tagContainer.removeChild(tagContainer.firstChild);
+        while (sidebarAllTagContainer.firstChild) {
+            sidebarAllTagContainer.removeChild(sidebarAllTagContainer.firstChild);
         }
 
-        $('#tags').html("");
+        $('#searchbarTags').html("");
 
-        tagContainer.scrollTop = 100;
+        sidebarAllTagContainer.scrollTop = 100;
         tagList.sort();
 
         tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
-        createTag(tagList, tagContainer, true);
+        createTag(tagList, sidebarAllTagContainer, true);
     }
 
-    function createTag(tagList, tagContainer, addToSearch) {
+    function createTag(tagList, tagContainerr, addToSearch) {
 
         tagList.forEach(tag => {
             var button = document.createElement("button");
@@ -479,10 +483,10 @@ $(document).ready(function() {
                 button.id = "tagItemSelected";
 
 
-            tagContainer.appendChild(button);
+            tagContainerr.appendChild(button);
 
             if (addToSearch)
-                $('#tags').append("<option value='" + tag + "'>");
+                $('#searchbarTags').append("<option value='" + tag + "'>");
 
 
             button.onclick = function() {
@@ -521,8 +525,8 @@ $(document).ready(function() {
 
             catalogContainer.style.visibility = "visible";
             createTagList(catalogContainer);
-            $tagContainer.show();
-            $imageTagContainer.hide();
+            $sidebarAllTagContainer.show();
+            $sidebarImageTagContainer.hide();
 
             if (catalogContainer.childElementCount < 1) {
                 $nextPageButton.hide();
@@ -567,11 +571,16 @@ $(document).ready(function() {
             "page=" + pageNumber +
             "&tags=" + selectedTagList;
 
-        var resolution = $("#searchResolution option:selected");
+        var resolution = $("#searchResolutionSelector option:selected");
 
         if (resolution.index() != 0) {
-            url += "+width:" + resolution.html().split("x")[0];
-            url += "+height:" + resolution.html().split("x")[1];
+            if(resolution.index() <= 4) {
+                url += "+width:" + resolution.html().split("x")[0];
+                url += "+height:" + resolution.html().split("x")[1];
+            } else {
+                url += "+width:>=" + resolution.val();// + resolution.html();
+                console.log(url);
+            }
         }
 
         if (showSFW && showEcchi && showHentai)
@@ -612,7 +621,7 @@ $(document).ready(function() {
         $("body").addClass("disable")
 
         if (!searchKonachan && !searchDanbooru && !searchYandere) {
-            $danbooruButton.click();
+            $konachanButton.click();
         }
 
         if (!showSFW && !showEcchi && !showHentai)

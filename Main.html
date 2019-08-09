@@ -9,58 +9,58 @@
   </head>
 
   <body">
-    <img id="mascot" src="./images/empty.png"></a>
 
     <div id="header">
+        
+        <div id="arrowButton"><img id="nextPageButton" src="./images/forward.png"></div>
         <input type="number" placeholder="page" id="pageInput"></input>
-        <div id="arrowButton" style="float:left;">
-            <img id="previousPageButton" src="./images/back.png"></a>
-        </div>
-        <div id="arrowButton" style="float:right;">
-            <img id="nextPageButton" src="./images/forward.png"></a>
-        </div>
-        <button id="clearButton">Clear</button>
-    </div>
+        <div id="arrowButton"><img id="previousPageButton" src="./images/back.png"></div>
+		
+		<div id="searchbarContainer">
+		      <input list="searchbarTags" type="text" placeholder="Search.." id="searchbar">
+		      <datalist id="searchbarTags"></datalist>
+		      <select id="searchResolutionSelector">
+		          <option value="1">Any</option>
+		          <option value="4">1280x720</option>
+		          <option value="5">1920x1080</option>
+		          <option value="6">2048x1080</option>
+		          <option value="7">2560x1440</option>
+              <option value="720">width>=720</option>
+              <option value="1080">width>=1080</option>
+              <option value="1440">width>=1440</option>
+              <option value="2160">width>=2160</option>
+              <option value="4320">width>=4320</option>
+		      </select>
+		      <img id="searchButton" src="./images/search_icon.png">
+		</div>
 
-    <div id="selectedImageContainer">
-        <img class="selectedImage">
-        <video controls muted loop class="selectedWebM" width="80%" height="80%" controls>
-            <sourcetype="video/x-webm> </video>
     </div>
 
     <div id=sidebarContainer>
 
-      <div id="searchbarContainer">
-          <input list="tags" type="text" placeholder="Search.." id="searchbar">
-          <datalist id="tags"></datalist>
-          <select id="searchResolution">
-              <option value="1">Any</option>>
-              <option value="4">1280x720</option>>
-              <option value="5">1920x1080</option>>
-              <option value="6">2048x1080</option>>
-              <option value="7">2560x1440</option>>
-          </select>
-          <img id="searchButton" src="./images/search_icon.png">
+      <div id="sidebarSettingsContainer">
+          <button class="sidebarSettingsButton" id="danbooruButton">Danbooru</button>
+          <button class="sidebarSettingsButton" id="konachanButton">Konachan</button>
+          <button class="sidebarSettingsButton" id="yandereButton">Yandere</button>
+          <button class="sidebarSettingsButton" id="sfwButton">SFW</button>
+          <button class="sidebarSettingsButton" id="ecchiButton">Ecchi</button>
+          <button class="sidebarSettingsButton" id="hentaiButton">Hentai</button>
+          <button class="sidebarSettingsButton" id="fullImageButton">Full Size Images</button>
       </div>
 
-      <div id="booruSelectContainer">
-          <button class="booruItem" id="danbooruButton">Danbooru</button>
-          <button class="booruItem" id="konachanButton">Konachan</button>
-          <button class="booruItem" id="yandereButton">Yandere</button>
-          <button class="booruItem" id="sfwButton">SFW</button>
-          <button class="booruItem" id="ecchiButton">Ecchi</button>
-          <button class="booruItem" id="hentaiButton">Hentai</button>
-          <button class="booruItem" id="fullImageButton">Full Size Images</button>
-      </div>
+      <div id="sidebarAllTagContainer"></div>
+      <div id="sidebarImageTagContainer"></div>
 
-      <div id="tagContainer"></div>
-      <div id="imageTagContainer"></div>
-      <div><img src="./images/loading.svg"></div>
+    </div>
 
+    <div id="expandedImageContainer">
+        <img class="expandedImage">
+        <video controls muted loop class="expandedWebM" controls><sourcetype="video/x-webm></sourcetype="video></video>
     </div>
 
     <div id="root">
         <div id="loading"><img src="./images/loading.svg"></div>
+        <img id="mascot" src="./images/empty.png"></a>
         <div id="catalogContainer"></div>
     </div>
 
