@@ -35,7 +35,6 @@
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-
 }
 
 
@@ -113,6 +112,54 @@ button {
     margin-left: 15px;
 }
 
+input:focus {
+    outline-width: 0;
+}
+
+#historySelector {
+    position: absolute;
+    text-decoration: none;
+    border: none;
+    width: 40px;
+    height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    font-size: 15px;
+    border-radius: 3px;
+    background-color: var(--search-button-color);
+    color: transparent;
+}
+
+#historySelector:hover {
+      background-color: var(--search-highlight-button-color);
+}
+
+select option {
+  background: #fff;
+  color: black;
+}
+
+select:active, select:hover, select:focus {
+  outline-width: 0;
+}
+
+
+#historyButton {  
+    width: 35px;
+    height: 35px;
+    max-width: 35px;
+    max-height: 35px;
+    padding-left: 2px;
+    padding-top: 2px;
+    flex: 1;
+    pointer-events: none;
+    z-index: 2;
+}
+
+#searchResolutionSelector {
+    background-color: #ffff;
+}
+
 #searchbarContainer {
     display: flex;
     width: 50%;
@@ -125,6 +172,7 @@ button {
     text-decoration: none;
     border: none;
     font-size: 15px;
+    margin-left: 10px;
     margin-right: 5px;
     border-radius: 3px;
     padding: 0 5 0 5;
@@ -147,7 +195,7 @@ button {
     height: 40px;
     max-width: 40px;
     max-height: 40px;
-    margin: 0 0 0 2;
+    /*margin: 0 0 0 2;*/
     border-radius: 5px;
     padding: -10;
     flex: 1;
@@ -210,7 +258,6 @@ button {
     background-color: var(--setting-highlight-button-color);
 }
 
-
 .disable {
     pointer-events: none;
 }
@@ -252,7 +299,9 @@ button {
     margin-left: 300px;
     align-items: center;
     justify-content: center;
+
 }
+
 
 #expandedImageContainer {
     background-color: var(--large-image-background-color);
@@ -264,7 +313,7 @@ button {
     z-index: 10;
     display: flex;
     align-items: center;
-    justify-content: center
+    justify-content: center;
 }
 
 #expandedImageW {

@@ -12,27 +12,33 @@
 
     <div id="header">
         
+
+
         <div id="arrowButton"><img id="nextPageButton" src="./images/forward.png"></div>
         <input type="number" placeholder="page" id="pageInput"></input>
         <div id="arrowButton"><img id="previousPageButton" src="./images/back.png"></div>
 		
-		<div id="searchbarContainer">
-		      <input list="searchbarTags" type="text" placeholder="Search.." id="searchbar">
-		      <datalist id="searchbarTags"></datalist>
-		      <select id="searchResolutionSelector">
-		          <option value="1">Any</option>
-		          <option value="4">1280x720</option>
-		          <option value="5">1920x1080</option>
-		          <option value="6">2048x1080</option>
-		          <option value="7">2560x1440</option>
-              <option value="720">width>=720</option>
-              <option value="1080">width>=1080</option>
-              <option value="1440">width>=1440</option>
-              <option value="2160">width>=2160</option>
-              <option value="4320">width>=4320</option>
-		      </select>
-		      <img id="searchButton" src="./images/search_icon.png">
-		</div>
+    		<div id="searchbarContainer">
+
+              <img id="historyButton" src="./images/history_icon.png">
+              <select onfocus="this.selectedIndex = -1;" id="historySelector"></select>
+
+    		      <input list="searchbarTags" type="text" placeholder="Search.." id="searchbar">
+    		      <datalist id="searchbarTags"></datalist>
+    		      <select id="searchResolutionSelector">
+    		          <option value="1">Any Size</option>
+    		          <option value="4">1280x720</option>
+    		          <option value="5">1920x1080</option>
+    		          <option value="6">2048x1080</option>
+    		          <option value="7">2560x1440</option>
+                  <option value="720">width>=720</option>
+                  <option value="1080">width>=1080</option>
+                  <option value="1440">width>=1440</option>
+                  <option value="2160">width>=2160</option>
+                  <option value="4320">width>=4320</option>
+    		      </select>
+    		      <img id="searchButton" src="./images/search_icon.png">
+    		</div>
 
     </div>
 

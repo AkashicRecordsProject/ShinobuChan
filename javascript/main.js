@@ -17,6 +17,8 @@ $(document).ready(function() {
     const searchbar = document.getElementById('searchbar');
     const searchResolution = document.getElementById("searchResolution");
     const pageInput = document.getElementById("pageInput")
+    const historySelector = document.getElementById("historySelector");
+
 
     const $expandedImageContainer = $("#expandedImageContainer");
     const $expandedImage = $(".expandedImage");
@@ -34,6 +36,7 @@ $(document).ready(function() {
     const $loading = $("#loading")
     const $sidebarAllTagContainer = $("#sidebarAllTagContainer");
     const $sidebarImageTagContainer = $("#sidebarImageTagContainer");
+    // const $historySelector = $("historySelector");
 
     var useFullSizeImage = JSON.parse(localStorage.getItem('useFullSizeImage'));
     var showSFW = JSON.parse(localStorage.getItem('showSFW'));
@@ -43,6 +46,12 @@ $(document).ready(function() {
     var searchKonachan = JSON.parse(localStorage.getItem('searchKonachan'));
     var searchYandere = JSON.parse(localStorage.getItem('searchYandere'));
     var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme'));
+    var historyList =  JSON.parse(localStorage.getItem("history"));
+
+    if (historyList == null)
+        historyList = new Array();
+
+    loadHistory();
 
     $mascot.hide();
     $expandedImageContainer.hide();
@@ -96,6 +105,15 @@ $(document).ready(function() {
 
     setTheme(isLightTheme);
 
+    historySelector.addEventListener('change', (event) => {
+
+        searchbar.value = event.target.options[event.target.selectedIndex].text;
+                    selectedTagList = searchbar.value;
+
+        search();
+    });
+
+
     pageInput.addEventListener("keyup", function(event) {
 
         if (event.keyCode === 13) {
@@ -138,6 +156,10 @@ $(document).ready(function() {
                 localStorage.setItem("isLightTheme", isLightTheme);
                 setTheme(isLightTheme);
             }
+
+            if (event.keyCode == 67) {
+            clearHistory();
+                }
         }
 
         if ($expandedImageContainer.is(":hidden"))
@@ -168,6 +190,7 @@ $(document).ready(function() {
                 $expandedWebM[0].pause();
             }
         }
+
 
     });
 
@@ -441,7 +464,6 @@ $(document).ready(function() {
     });
 
 
-
     function createImageTagList(tagList) {
 
         while (sidebarImageTagContainer.firstChild) {
@@ -547,7 +569,47 @@ $(document).ready(function() {
     }
 
 
+    function loadHistory() {
+        for (var i = 0; i < historyList.length; i++) {
+            var option = $("<option></option>");
+            $(option).val(0);
+            $(option).html( historyList[i]);
+            $(historySelector).append(option);
+        }
+    }
+
+    function addToHistory(item){
+        if(item != "") {
+            historyList.unshift(item);
+            var option = $("<option></option>");
+            $(option).val(0);
+            $(option).html(item);
+            $(historySelector).prepend(option);
+
+            if(historyList.length > 30) {
+                historyList.pop();
+                document.getElementById("historySelector").remove(30);
+            }
+
+            localStorage.setItem("history", JSON.stringify(historyList));
+        }
+    }
+
+    function clearHistory(){
+
+        var i;
+        for(i = document.getElementById("historySelector").options.length - 1 ; i >= 0 ; i--){
+            document.getElementById("historySelector").remove(i);
+        }
+
+        historyList = new Array();
+        localStorage.setItem("history", JSON.stringify(historyList));
+    }
+
+
     function search() {
+
+        addToHistory(selectedTagList);
         pageNumber = 1;
         goToPage(selectedTagList);
     }
@@ -578,8 +640,7 @@ $(document).ready(function() {
                 url += "+width:" + resolution.html().split("x")[0];
                 url += "+height:" + resolution.html().split("x")[1];
             } else {
-                url += "+width:>=" + resolution.val();// + resolution.html();
-                console.log(url);
+                url += "+width:>=" + resolution.val();
             }
         }
 
@@ -665,3 +726,5 @@ $(document).ready(function() {
     }
 
 });
+
+
