@@ -158,39 +158,51 @@ $(document).ready(function() {
             }
 
             if (event.keyCode == 67) {
-            clearHistory();
+                clearHistory();
+            }
+        }
+
+        if ($expandedImageContainer.is(":hidden")) {
+                if (event.keyCode == 37) {
+                    $previousPageButton.click();
                 }
-        }
-
-        if ($expandedImageContainer.is(":hidden"))
-            return;
-
-        if (event.keyCode === 39) {
-            try {
-                $(".image")[currentImagePosition + 1].click();
-            } catch (error) {
-                expandedImageContainer.click();
+                if (event.keyCode == 39) {
+                    $nextPageButton.click();
+                }
+                if (event.keyCode == 38) {
+                    event.preventDefault();
+                    $(".image")[0].click();
+                }
             }
-        } else if (event.keyCode === 37) {
 
-            if (currentImagePosition >= 1)
-                $(".image")[currentImagePosition - 1].click();
-            else
+        else {
+
+            if (event.keyCode === 39) {
+                try {
+                    $(".image")[currentImagePosition + 1].click();
+                } catch (error) {
+                    expandedImageContainer.click();
+                }
+            } else if (event.keyCode === 37) {
+
+                if (currentImagePosition >= 1)
+                    $(".image")[currentImagePosition - 1].click();
+                else
+                    expandedImageContainer.click();
+            } else if (event.keyCode == 40 || event.keyCode == 27 || event.keyCode == 38) {
+
+                event.preventDefault();
                 expandedImageContainer.click();
-        } else if (event.keyCode == 40) {
+            } else if (event.keyCode == 32) {
 
-            event.preventDefault();
-            expandedImageContainer.click();
-        } else if (event.keyCode == 32) {
-
-            event.preventDefault();
-            if ($expandedWebM[0].paused == true) {
-                $expandedWebM[0].play();
-            } else {
-                $expandedWebM[0].pause();
-            }
+                event.preventDefault();
+                if ($expandedWebM[0].paused == true) {
+                    $expandedWebM[0].play();
+                } else {
+                    $expandedWebM[0].pause();
+                }
+            } 
         }
-
 
     });
 
@@ -270,6 +282,10 @@ $(document).ready(function() {
 
     $nextPageButton.click(function() {
 
+      if($nextPageButton.is(":hidden")) {
+            return;
+        }
+
         pageNumber++;
         goToPage();
         $expandedImageContainer.hide();
@@ -282,12 +298,18 @@ $(document).ready(function() {
 
     $previousPageButton.click(function() {
 
+
+        if(pageNumber - 1 <= 0) {
+            $previousPageButton.hide();
+            return;
+        }
+
         pageNumber--;
         goToPage();
         $expandedImageContainer.hide();
 
-        if (pageNumber <= 1)
-            $previousPageButton.hide();
+        // if (pageNumber <= 1)
+            // $previousPageButton.hide();
 
     });
 
