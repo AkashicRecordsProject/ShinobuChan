@@ -66,8 +66,12 @@ button {
     bottom: 0;
     right: 30%;
     position: fixed;
+    display: none;
 }
 
+#previousPageButton {
+    display: none;
+}
 
 #previousPageButton,
 #nextPageButton {
@@ -228,7 +232,7 @@ select:active, select:hover, select:focus {
     padding-left: 5px;
     padding-right: 5px;
     width: 100%;
-    height: calc(100% - 110px);
+    height: calc(100% - 105px);
     display: inline-block;
     overflow: scroll;
 }
@@ -291,7 +295,6 @@ select:active, select:hover, select:focus {
     background-color: var(--clear-button-color);
 }
 
-
 #catalogContainer {
     display: flex;
     flex-wrap: wrap;
@@ -301,7 +304,6 @@ select:active, select:hover, select:focus {
     justify-content: center;
 
 }
-
 
 #expandedImageContainer {
     background-color: var(--large-image-background-color);
@@ -314,19 +316,20 @@ select:active, select:hover, select:focus {
     display: flex;
     align-items: center;
     justify-content: center;
+    /*display: none;*/
+    /*visibility: hidden;*/
 }
 
-#expandedImageW {
+#expandedImageWide {
     height: auto;
     max-width: 95%;
     max-height: 95%;
 }
 
-#expandedImageH {
+#expandedImageTall {
     width: auto;
     max-width: 95%;
     max-height: 95%;
-
 }
 
 video {
@@ -338,25 +341,24 @@ video {
 #catalogItem {
     width: 200px;
     height: 150px;
-    padding: 10 10 10 10;
+    padding: 10;
     margin: 10 10 10 10;
     background: var(--image-background-color);
     display: flex;
     align-items: center;
-    justify-content: center
+    justify-content: center;
+    overflow: hidden;
 }
 
-#catalogImageW {
+#catalogImageWide {
     width: 100%;
     height: auto;
 }
 
-#catalogImageH {
+#catalogImageTall {
     width: auto;
     height: 100%;
 }
-
-
 
 @media screen and (min-width: 600px) {
     .card {
