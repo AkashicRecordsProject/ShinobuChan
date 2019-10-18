@@ -14,18 +14,18 @@
 
     <div id="header">
         
-        <div id="arrowButton"><img id="nextPageButton" src="./images/forward.png"></div>
-        <input type="number" placeholder="page" id="pageInput"></input>
-        <div id="arrowButton"><img id="previousPageButton" src="./images/back.png"></div>
+        <div><img id="next-page-button" src="./images/forward.png"></div>
+        <input type="number" placeholder="page" id="page-select-input"></input>
+        <div><img id="previous-page-button" src="./images/back.png"></div>
 		
-    		<div id="searchbarContainer">
+    		<div id="search-bar-container">
 
-              <img id="historyButton" src="./images/history_icon.png">
-              <select onfocus="this.selectedIndex = -1;" id="historySelector"></select>
+              <img id="history-button" src="./images/history_icon.png">
+              <select onfocus="this.selectedIndex = -1;" id="history-selector"></select>
 
-    		      <input list="searchbarTags" type="text" placeholder="Search.." id="searchbar">
-    		      <datalist id="searchbarTags"></datalist>
-    		      <select id="searchResolutionSelector">
+    		      <input list="search-bar-tags" type="text" placeholder="Search.." id="search-bar">
+    		      <datalist id="search-bar-tags"></datalist>
+    		      <select id="search-bar-resolution-selector">
     		          <option value="1">Any Size</option>
     		          <option value="4">1280x720</option>
     		          <option value="5">1920x1080</option>
@@ -37,37 +37,37 @@
                   <option value="2160">width>=2160</option>
                   <option value="4320">width>=4320</option>
     		      </select>
-    		      <img id="searchButton" src="./images/search_icon.png">
+    		      <img id="search-button" src="./images/search_icon.png">
     		</div>
 
     </div>
 
-    <div id=sidebarContainer>
+    <div id=sidebar-container>
 
-      <div id="sidebarSettingsContainer">
-          <button class="sidebarSettingsButton" id="danbooruButton">Danbooru</button>
-          <button class="sidebarSettingsButton" id="konachanButton">Konachan</button>
-          <button class="sidebarSettingsButton" id="yandereButton">Yandere</button>
-          <button class="sidebarSettingsButton" id="sfwButton">SFW</button>
-          <button class="sidebarSettingsButton" id="ecchiButton">Ecchi</button>
-          <button class="sidebarSettingsButton" id="hentaiButton">Hentai</button>
-          <button class="sidebarSettingsButton" id="fullImageButton">Full Size Images</button>
+      <div id="sidebar-settings-container">
+          <button class="sidebar-setting-button" id="danbooru-button">Danbooru</button>
+          <button class="sidebar-setting-button" id="konachan-button">Konachan</button>
+          <button class="sidebar-setting-button" id="yandere-button">Yandere</button>
+          <button class="sidebar-setting-button" id="sfw-button">SFW</button>
+          <button class="sidebar-setting-button" id="ecchi-button">Ecchi</button>
+          <button class="sidebar-setting-button" id="hentai-button">Hentai</button>
+          <button class="sidebar-setting-button" id="full-image-button">Full Size Images</button>
       </div>
 
-      <div id="sidebarAllTagContainer"></div>
-      <div id="sidebarImageTagContainer"></div>
+      <div id="sidebar-all-tags-container"></div>
+      <div id="sidebar-selected-tag-container"></div>
 
     </div>
 
-    <div id="expandedImageContainer" >
-        <img class="expandedImage">
-        <video controls muted loop class="expandedWebM" controls><sourcetype="video/x-webm></sourcetype="video></video>
+    <div id="expanded-image-container" >
+        <img id="expanded-image">
+        <video controls muted loop id="expanded-webm" controls><sourcetype="video/x-webm></sourcetype="video></video>
     </div>
 
     <div id="root">
-        <div id="loading"><img src="./images/loading.svg"></div>
+        <div id="loading-spinner"><img src="./images/loading.svg"></div>
         <img id="mascot" src="./images/empty.png"></a>
-        <div id="catalogContainer"></div>
+        <div id="catalog-container"></div>
     </div>
 
   </body>

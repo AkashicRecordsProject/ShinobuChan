@@ -3,10 +3,10 @@ window.imageContainers = window.myNameSpace || {};
 //this class deals with keeping track of selected images and navigating the expanded image mode
 imageContainers.expandedImageContainer = class {
 
-    expandedImageContainer = $("#expandedImageContainer");
-    expandedImage = $(".expandedImage");
-    expandedWebM = $(".expandedWebM");
-    catalogContainer = $('#catalogContainer');
+    expandedImageContainer = $("#expanded-image-container");
+    expandedImage = $("#expanded-image");
+    expandedWebM = $("#expanded-webm");
+    catalogContainer = $('#catalog-container');
 
     fullImageSettingButton = null;
     currentImagePosition = -1;
@@ -17,7 +17,6 @@ imageContainers.expandedImageContainer = class {
 
         parent = this;
         this.fullImageSettingButton = fullImageSettingButton;
-
         this.closeImage();
 
         this.expandedWebM.click(function(e) {
@@ -48,12 +47,12 @@ imageContainers.expandedImageContainer = class {
     //this is used to reload the image when switching between full size and sample
     reloadImage() {
         this.expandedImage.attr("src", "");
-        $(".image")[parent.currentImagePosition].click();
+        $(".gallery-image")[parent.currentImagePosition].click();
     }
     //go to next image or close
     goToNextImage() {
         try {
-            $(".image")[parent.currentImagePosition + 1].click();
+            $(".gallery-image")[parent.currentImagePosition + 1].click();
         } catch (error) {
             parent.closeImage();
         }
@@ -61,12 +60,12 @@ imageContainers.expandedImageContainer = class {
     // go to previous image or close
     goToPreviousImage() {
         if (this.currentImagePosition >= 1)
-            $(".image")[parent.currentImagePosition - 1].click();
+            $(".gallery-image")[parent.currentImagePosition - 1].click();
         else
             parent.closeImage();
 
     }
-    
+
     //pauses videos, clears srcs and hides images
     closeImage() {
         this.expandedImageContainer.hide();
@@ -74,7 +73,7 @@ imageContainers.expandedImageContainer = class {
         this.expandedWebM.hide();
         this.expandedImage.attr("src", "");
         this.expandedWebM.attr("src", "");
-        this.expandedWebM[0].pause();
+        this.expandedWebM.get(0).pause();
 
         if (parent.oldImagePosition != parent.currentImagePosition)
             parent.currentImagePosition = -1;
@@ -94,6 +93,7 @@ imageContainers.expandedImageContainer = class {
     }
     //opens images and videos
     openImage(imageJson, position) {
+
         this.expandedImage.attr("src", "");
         this.expandedImageContainer.show();
         this.setSelectedImagePosition(position);
@@ -107,10 +107,8 @@ imageContainers.expandedImageContainer = class {
             samepleImageURL = imageJson.large_file_url;
 
         //setting style based on image width
-        if (imageJson.width > imageJson.height)
-            this.expandedImage.attr("id", "expandedImageWide");
-        else
-            this.expandedImage.attr("id", "expandedImageTall");
+        if (imageJson.width < imageJson.height || imageJson.image_width < imageJson.image_height)
+            this.expandedImage.addClass("expanded-tall");
 
         //displaying the image based on what type of image it is
         //only danbooru has zip, webm, and mp4 files
@@ -158,7 +156,7 @@ imageContainers.expandedImageContainer = class {
 imageContainers.catalogContainer = class {
 
     tagList = [];
-    container = document.getElementById('catalogContainer');
+    container = document.getElementById('catalog-container');
     expandedImageContainer = null;
 
     constructor(expandedImageContainer) {
@@ -187,8 +185,10 @@ imageContainers.catalogContainer = class {
 
     //removing all images in container
     clearImages() {
-        while (catalogContainer.firstChild) {
-            catalogContainer.removeChild(catalogContainer.firstChild);
+
+        this.tagList = [];
+        while (this.container.firstChild) {
+            this.container.removeChild(this.container.firstChild);
         }
     }
 
@@ -202,8 +202,8 @@ imageContainers.catalogContainer = class {
         var position = this.getNumberOfImages();
         var samepleImageURL = null;
 
-        catalogItem.id = "catalogItem"
-
+        // catalogItem.id = "catalog-item";
+        catalogItem.classList.add("catalog-item");
         //creating tags for konachan and yandere
         try {
             imageJson.tags.split(" ").forEach(tag => {
@@ -244,20 +244,20 @@ imageContainers.catalogContainer = class {
         if (samepleImageURL == null)
             return;
 
-        image.id = "catalogImageWide";
+        image.classList.add("catalog-image-wide");
 
         //setting tall id for konachan and yandere
         if (imageJson.preview_width != null && imageJson.preview_height > imageJson.preview_width) {
-            image.id = "catalogImageTall";
+            image.classList.add("catalog-image-tall");
         } //setting tall id for danbooru 
         else if (imageJson.image_width != null && imageJson.image_height > imageJson.image_width) {
-            image.id = "catalogImageTall";
+            image.classList.add("catalog-image-tall");
         }
 
-        image.classList.add("image");
+        image.classList.add("gallery-image");
 
         catalogItem.appendChild(image);
-        catalogContainer.appendChild(catalogItem);
+        this.container.appendChild(catalogItem);
 
         //toggling between image tags and catalog tags on middle click
         catalogItem.addEventListener('auxclick', function(event) {
@@ -268,7 +268,7 @@ imageContainers.catalogContainer = class {
             ]);
         });
         // reverting back to catalog tags when middle click on catalog container
-        catalogContainer.addEventListener('auxclick', function(event) {
+        this.container.addEventListener('auxclick', function(event) {
             parent.expandedImageContainer.setSelectedImagePosition(position);
             callback.apply(this, [true, -1]);
         });

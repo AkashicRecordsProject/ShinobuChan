@@ -53,7 +53,7 @@ button {
 }
 
 
-#loading {
+#loading-spinner {
     position: absolute;
     left: 55%;
     top: 50%;
@@ -69,12 +69,12 @@ button {
     display: none;
 }
 
-#previousPageButton {
+#previous-page-button {
     display: none;
 }
 
-#previousPageButton,
-#nextPageButton {
+#previous-page-button,
+#next-page-button {
     padding: 5px 5px 0px 5px;
     width: calc(var(--header-height) - 10px);
     height: calc(var(--header-height) - 10px);
@@ -83,8 +83,8 @@ button {
     opacity: 0.8;
 }
 
-#previousPageButton:hover,
-#nextPageButton:hover {
+#previous-page-button:hover,
+#next-page-button:hover {
     opacity: 1;
 }
 
@@ -101,7 +101,7 @@ button {
 }
 
 
-#pageInput {
+#page-select-input {
     background-color: var(--header-background-color);
     text-align: center;
     text-decoration: none;
@@ -120,7 +120,7 @@ input:focus {
     outline-width: 0;
 }
 
-#historySelector {
+#history-selector {
     position: absolute;
     text-decoration: none;
     border: none;
@@ -134,7 +134,7 @@ input:focus {
     color: transparent;
 }
 
-#historySelector:hover {
+#history-selector:hover {
       background-color: var(--search-highlight-button-color);
 }
 
@@ -148,7 +148,7 @@ select:active, select:hover, select:focus {
 }
 
 
-#historyButton {  
+#history-button {  
     width: 35px;
     height: 35px;
     max-width: 35px;
@@ -160,11 +160,8 @@ select:active, select:hover, select:focus {
     z-index: 2;
 }
 
-#searchResolutionSelector {
-    background-color: #ffff;
-}
 
-#searchbarContainer {
+#search-bar-container {
     display: flex;
     width: 50%;
     margin-top: 2.5px;
@@ -172,7 +169,7 @@ select:active, select:hover, select:focus {
     padding-right: 100px;
 }
 
-#searchbar {
+#search-bar {
     text-decoration: none;
     border: none;
     font-size: 15px;
@@ -183,7 +180,8 @@ select:active, select:hover, select:focus {
     flex: 5;
 }
 
-#searchResolutionSelector {
+#search-bar-resolution-selector {
+    background-color: #ffff;
     text-decoration: none;
     border: none;
     height: 40px;
@@ -193,7 +191,7 @@ select:active, select:hover, select:focus {
     flex: 1;
 }
 
-#searchButton {
+#search-button {
     background-color: var(--search-button-color);
     width: 40px;
     height: 40px;
@@ -205,11 +203,11 @@ select:active, select:hover, select:focus {
     flex: 1;
 }
 
-#searchButton:hover {
+#search-button:hover {
     background-color: var(--search-highlight-button-color);
 }
 
-#sidebarContainer {
+#sidebar-container {
     background-color: var(--sidebar-background-color);
     position: fixed;
     width: 300px;
@@ -220,15 +218,15 @@ select:active, select:hover, select:focus {
     z-index: 1;
 }
 
-#sidebarSettingsContainer {
+#sidebar-settings-container {
     background-color: var(--setting-background-color);
     width: 100%;
     padding-left: 5px;
     padding-right: 5px;
 }
 
-#sidebarAllTagContainer,
-#sidebarImageTagContainer {
+#sidebar-all-tags-container,
+#sidebar-selected-tag-container {
     padding-left: 5px;
     padding-right: 5px;
     width: 100%;
@@ -237,7 +235,7 @@ select:active, select:hover, select:focus {
     overflow: scroll;
 }
 
-.sidebarSettingsButton {
+.sidebar-setting-button {
     background-color: var(--setting-selected-button-color);
     padding: 5px;
     margin: 5 0 5 0;
@@ -250,15 +248,15 @@ select:active, select:hover, select:focus {
 }
 
 
-.sidebarSettingsButton:hover {
+.sidebar-setting-button:hover {
     background-color: var(--clear-button-color);
 }
 
-.sidebarSettingsButtonDisabled {
+.sidebar-setting-button-disabled {
     background-color: var(--setting-button-color);
 }
 
-.sidebarSettingsButtonDisabled:hover {
+.sidebar-setting-button-disabled:hover {
     background-color: var(--setting-highlight-button-color);
 }
 
@@ -267,8 +265,7 @@ select:active, select:hover, select:focus {
 }
 
 
-#tagItem,
-#tagItemSelected {
+.tag-item {
     display: block;
     margin: 5 0 5 0;
     background-color: var(--tag-button-color);
@@ -283,29 +280,28 @@ select:active, select:hover, select:focus {
     text-decoration: none;
 }
 
-#tagItem:hover {
+.tag-item:hover {
     background-color: var(--tag-highlight-button-color);
 }
 
-#tagItemSelected {
+.selected-tag{
     background-color: var(--tag-selected-button-color);
 }
 
-#tagItemSelected:hover {
+.selected-tag:hover {
     background-color: var(--clear-button-color);
 }
 
-#catalogContainer {
+#catalog-container {
     display: flex;
     flex-wrap: wrap;
     margin-top: 60px;
     margin-left: 300px;
     align-items: center;
     justify-content: center;
-
 }
 
-#expandedImageContainer {
+#expanded-image-container {
     background-color: var(--large-image-background-color);
     position: fixed;
     left: 0;
@@ -316,17 +312,16 @@ select:active, select:hover, select:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    /*display: none;*/
-    /*visibility: hidden;*/
 }
 
-#expandedImageWide {
-    height: auto;
+
+#expanded-image {
+  height: auto;
     max-width: 95%;
     max-height: 95%;
 }
 
-#expandedImageTall {
+.expanded-tall {
     width: auto;
     max-width: 95%;
     max-height: 95%;
@@ -338,7 +333,7 @@ video {
     height: 80%
 }
 
-#catalogItem {
+.catalog-item {
     width: 200px;
     height: 150px;
     padding: 10;
@@ -350,12 +345,12 @@ video {
     overflow: hidden;
 }
 
-#catalogImageWide {
+.catalog-image-wide {
     width: 100%;
     height: auto;
 }
 
-#catalogImageTall {
+.catalog-image-tall {
     width: auto;
     height: 100%;
 }

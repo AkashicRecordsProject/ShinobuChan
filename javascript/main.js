@@ -4,35 +4,36 @@ $(document).ready(function() {
     var numberOfPagesLoaded = 0;
     var currentImagePosition = 0;
     var oldImagePosition = 0;
-    var selectedTagList = selectedTagList = "";
+    var selectedTagList = "";
     var fullImageLink = "";
 
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
     //creating the setting buttons
-    const danbooruSettingButton = new buttons.SettingsButton($("#danbooruButton"), "searchDanbooru");
-    const konachanSettingButton = new buttons.SettingsButton($("#konachanButton"), "searchKonachan");
-    const yandereSettingButton = new buttons.SettingsButton($("#yandereButton"), "searchYandere");
-    const sfwSettingButton = new buttons.SettingsButton($("#sfwButton"), "showSFW");
-    const ecchiSettingButton = new buttons.SettingsButton($("#ecchiButton"), "showEcchi");
-    const hentaiSettingButton = new buttons.SettingsButton($("#hentaiButton"), "showHentai");
-    const fullImageSettingButton = new buttons.SettingsButton($("#fullImageButton"), "useFullSizeImage");
+    const danbooruSettingButton = new buttons.SettingsButton($("#danbooru-button"), "searchDanbooru");
+    const konachanSettingButton = new buttons.SettingsButton($("#konachan-button"), "searchKonachan");
+    const yandereSettingButton = new buttons.SettingsButton($("#yandere-button"), "searchYandere");
+    const sfwSettingButton = new buttons.SettingsButton($("#sfw-button"), "showSFW");
+    const ecchiSettingButton = new buttons.SettingsButton($("#ecchi-button"), "showEcchi");
+    const hentaiSettingButton = new buttons.SettingsButton($("#hentai-button"), "showHentai");
+    const fullImageSettingButton = new buttons.SettingsButton($("#full-image-button"), "useFullSizeImage");
     const expandedImageContainer = new imageContainers.expandedImageContainer(fullImageSettingButton);
     const catalogContainer = new imageContainers.catalogContainer(expandedImageContainer);
 
     const app = document.getElementById('root');
-    const searchbar = document.getElementById('searchbar');
+    const searchbar = document.getElementById('search-bar');
     const searchResolution = document.getElementById("searchResolution");
-    const pageInput = document.getElementById("pageInput")
-    const historySelector = document.getElementById("historySelector");
+    const pageInput = document.getElementById("page-select-input")
+    const historySelector = document.getElementById("history-selector");
 
-    const $previousPageButton = $("#previousPageButton");
-    const $nextPageButton = $("#nextPageButton");
+    const $previousPageButton = $("#previous-page-button");
+    const $nextPageButton = $("#next-page-button");
     const $mascot = $("#mascot");
-    const $loading = $("#loading")
-    const $sidebarAllTagContainer = $("#sidebarAllTagContainer");
-    const $sidebarImageTagContainer = $("#sidebarImageTagContainer");
-    const $searchButton = $("#searchButton");
+    const $loading = $("#loading-spinner")
+    const $sidebarAllTagContainer = $("#sidebar-all-tags-container");
+    const $sidebarImageTagContainer = $("#sidebar-selected-tag-container");
+
+    const $searchButton = $("#search-button");
 
     var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || false;
     var historyList = JSON.parse(localStorage.getItem("history")) || [];
@@ -48,7 +49,6 @@ $(document).ready(function() {
         searchbar.value = event.target.options[event.target.selectedIndex].text;
         search(searchbar.value);
     });
-
 
     //on enter click setting search to search bar value and calling search function
     searchbar.addEventListener("keyup", function(event) {
@@ -162,33 +162,29 @@ $(document).ready(function() {
     //clearing tags from sidebar selected image tags and adding new tags from the tag list
     function createSelectedImageTagList(tagList) {
         //clearing tags from side bar
-        while (sidebarImageTagContainer.firstChild) {
-            sidebarImageTagContainer.removeChild(sidebarImageTagContainer.firstChild);
-        }
+        $sidebarImageTagContainer.empty();
         //scrolling back to top
-        sidebarImageTagContainer.scrollTop = 100;
+        $sidebarImageTagContainer.scrollTop = 100;
         tagList.sort();
         //adding selected tags to the top of the list
         tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
-        createTag(tagList, sidebarImageTagContainer, false);
+        createTag(tagList, $sidebarImageTagContainer, false);
     }
 
     //clearing tags from sidebar catalog tags and adding new tags from the tag list
     function createCatalogTagList(tagList) {
         //clearing tags from side bar
-        while (sidebarAllTagContainer.firstChild) {
-            sidebarAllTagContainer.removeChild(sidebarAllTagContainer.firstChild);
-        }
+        $sidebarAllTagContainer.empty();
         //clearing seachbar suggestions 
-        $('#searchbarTags').html("");
+        $('#search-bar-tags').html("");
         //scrolling back to top
-        sidebarAllTagContainer.scrollTop = 100;
+        $sidebarAllTagContainer.scrollTop = 100;
         tagList.sort();
         //adding selected tags to the top of the list
         tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
-        createTag(tagList, sidebarAllTagContainer, true);
+        createTag(tagList, $sidebarAllTagContainer, true);
     }
     //creating the tag buttons and setting their behavior
     function createTag(tagList, tagContainerr, addToSearch) {
@@ -196,15 +192,16 @@ $(document).ready(function() {
         tagList.forEach(tag => {
             var button = document.createElement("button");
             button.innerHTML = tag;
-            button.id = "tagItem";
+            button.classList.add("tag-item");
+
             //setting style on selected tags
             if (selectedTagList.split(" ").includes(tag))
-                button.id = "tagItemSelected";
+                button.classList.add("selected-tag");
 
-            tagContainerr.appendChild(button);
+            tagContainerr.append(button);
             //adding tag to seachbar suggestion list
             if (addToSearch)
-                $('#searchbarTags').append("<option value='" + tag + "'>");
+                $('#search-bar-tags').append("<option value='" + tag + "'>");
 
 
             button.onclick = function() {
@@ -288,7 +285,7 @@ $(document).ready(function() {
             //only keeping the last 30 searches
             if (historyList.length > 30) {
                 historyList.pop();
-                document.getElementById("historySelector").remove(30);
+                document.getElementById("history-selector").remove(30);
             }
             //saving history to local storage
             localStorage.setItem("history", JSON.stringify(historyList));
@@ -298,8 +295,8 @@ $(document).ready(function() {
     //removing all values from history selector and clearing local history
     function clearHistory() {
         var i;
-        for (i = document.getElementById("historySelector").options.length - 1; i >= 0; i--) {
-            document.getElementById("historySelector").remove(i);
+        for (i = document.getElementById("history-selector").options.length - 1; i >= 0; i--) {
+            document.getElementById("history-selector").remove(i);
         }
         historyList = [];
         localStorage.setItem("history", JSON.stringify(historyList));
@@ -314,7 +311,7 @@ $(document).ready(function() {
     }
     //setting the search bar and page input values and calling load content
     function loadPage() {
-        $("#pageInput").val(pageNumber);
+        $("#page-select-input").val(pageNumber);
         searchbar.value = selectedTagList;
 
         loadContent(createURL("https://konachan.com/post.json?"),
@@ -330,7 +327,7 @@ $(document).ready(function() {
             "page=" + pageNumber +
             "&tags=" + selectedTagList;
 
-        var resolution = $("#searchResolutionSelector option:selected");
+        var resolution = $("#search-bar-resolution-selector option:selected");
         //adding resolution to the URL
         if (resolution.index() != 0) {
             if (resolution.index() <= 4) {
@@ -435,6 +432,7 @@ $(document).ready(function() {
 
         const yandareRequest = new XMLHttpRequest();
         yandareRequest.open("GET", proxyurl + yandereURL);
+        // yandareRequest.withCredentials = true;
 
         const danboorRequest = new XMLHttpRequest();
         danboorRequest.open("GET", proxyurl + danbooruURL);

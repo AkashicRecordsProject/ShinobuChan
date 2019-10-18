@@ -6,7 +6,7 @@ buttons.SettingsButton = class {
     isSelected = false;
 
     constructor(button, storageName) {
-        const disabledButton = "sidebarSettingsButtonDisabled";
+        const disabledButton = "sidebar-setting-button-disabled";
         var parent = this;
         this.isSelected = JSON.parse(localStorage.getItem(storageName)) || false;
         this.button = button;
