@@ -149,7 +149,7 @@ $(document).ready(function() {
     });
 
     function goToPage(page) {
-        pageNumber = page;
+        pageNumber = parseInt(page);
         //show previous page button if not on first page
         if (pageNumber <= 1)
             pageNumber = 1;
