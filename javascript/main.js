@@ -20,9 +20,10 @@ $(document).ready(function() {
     const expandedImageContainer = new imageContainers.expandedImageContainer(fullImageSettingButton);
     const catalogContainer = new imageContainers.catalogContainer(expandedImageContainer);
 
+    const booruImages = new booru.images();
+
     const app = document.getElementById('root');
     const searchbar = document.getElementById('search-bar');
-    const searchResolution = document.getElementById("searchResolution");
     const pageInput = document.getElementById("page-select-input")
     const historySelector = document.getElementById("history-selector");
 
@@ -97,7 +98,7 @@ $(document).ready(function() {
             } //up arrow click
             if (event.keyCode == 38) {
                 event.preventDefault();
-                $(".image")[0].click();
+                $(".gallery-image")[0].click();
             }
         } //if expanded image is showing 
         else {
@@ -202,7 +203,6 @@ $(document).ready(function() {
             //adding tag to seachbar suggestion list
             if (addToSearch)
                 $('#search-bar-tags').append("<option value='" + tag + "'>");
-
 
             button.onclick = function() {
 
@@ -328,6 +328,7 @@ $(document).ready(function() {
             "&tags=" + selectedTagList;
 
         var resolution = $("#search-bar-resolution-selector option:selected");
+
         //adding resolution to the URL
         if (resolution.index() != 0) {
             if (resolution.index() <= 4) {
@@ -351,34 +352,28 @@ $(document).ready(function() {
         else if (hentaiSettingButton.isSelected)
             url += "+rating:e";
 
+        // console.log(url);
         return url;
     }
 
     //adding images to catalog container from json 
-    function onJsonLoad(Json) {
-        try {
-            JSON.parse(Json).forEach(image => {
-                //passing toggleTags so they can be updated on middle click
-                catalogContainer.addImageFromJson(image, toggleTags);
-            });
-        } catch (error) {
-            console.log(error);
-        }
+    function onLoad() {
+
+        catalogContainer.clearImages();
+
+        booruImages.getImageList().forEach(image => {
+            catalogContainer.addImage(image, toggleTags);
+        });
 
         numberOfPagesLoaded++;
         onLoaded();
     }
 
     //handling middle click on images
-    function toggleTags(isSameImage, imageJson) {
-
-        //checking to see if json is null
-        if (typeof(imageJson) == "undefined") {
-            return;
-        }
+    function toggleTags(isSameImage, imageModel) {
 
         //used to show all catalog tags when catalog container is clicked
-        if (imageJson == -1) {
+        if (imageModel == -1) {
             if ($sidebarImageTagContainer.is(":visible")) {
                 $sidebarAllTagContainer.show();
                 $sidebarImageTagContainer.hide();
@@ -389,14 +384,7 @@ $(document).ready(function() {
         if (!isSameImage || $sidebarImageTagContainer.is(":hidden")) {
             $sidebarAllTagContainer.hide();
             $sidebarImageTagContainer.show();
-            //for konachan and yandere
-            if (imageJson.tags != null) {
-                createSelectedImageTagList(imageJson.tags.split(" "));
-            } //for danbooru
-            else {
-                createSelectedImageTagList(imageJson.tag_string_general.split(" ").concat(imageJson.tag_string_character.split(" ")).concat(imageJson.tag_string_copyright.split(" ")).concat(imageJson.tag_string_artist.split(" ")));
-            }
-
+            createSelectedImageTagList(imageModel.tags);
         } //show catalog container tags 
         else if ($sidebarImageTagContainer.is(":visible")) {
             $sidebarAllTagContainer.show();
@@ -408,7 +396,6 @@ $(document).ready(function() {
     function loadContent(konachanURL, yandereURL, danbooruURL) {
 
         $loading.show();
-        catalogContainer.clearImages();
 
         currentImagePosition = 0;
         numberOfPagesLoaded = 0;
@@ -425,38 +412,14 @@ $(document).ready(function() {
         else if (sfwSettingButton.isSelected && hentaiSettingButton.isSelected && !ecchiSettingButton.isSelected)
             hentaiSettingButton.button.click();
 
-
-        //requesting json file
-        const KonachanRequest = new XMLHttpRequest();
-        KonachanRequest.open("GET", proxyurl + konachanURL);
-
-        const yandareRequest = new XMLHttpRequest();
-        yandareRequest.open("GET", proxyurl + yandereURL);
-        // yandareRequest.withCredentials = true;
-
-        const danboorRequest = new XMLHttpRequest();
-        danboorRequest.open("GET", proxyurl + danbooruURL);
-
-        //adding to catalog from json
-        KonachanRequest.onload = function() {
-            onJsonLoad(this.response);
-        }
-
-        yandareRequest.onload = function() {
-            onJsonLoad(this.response);
-        }
-
-        danboorRequest.onload = function() {
-            onJsonLoad(this.response);
-        }
-
-        //sending request
+        booruImages.clearImageList();
         if (konachanSettingButton.isSelected)
-            KonachanRequest.send();
+            booruImages.loadImages(konachanURL, onLoad);
         if (yandereSettingButton.isSelected)
-            yandareRequest.send();
+            booruImages.loadImages(yandereURL, onLoad);
         if (danbooruSettingButton.isSelected)
-            danboorRequest.send();
+            booruImages.loadImages(danbooruURL, onLoad);
+
     }
 
 });

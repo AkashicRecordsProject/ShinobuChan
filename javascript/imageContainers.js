@@ -15,7 +15,7 @@ imageContainers.expandedImageContainer = class {
 
     constructor(fullImageSettingButton) {
 
-        parent = this;
+        const parent = this;
         this.fullImageSettingButton = fullImageSettingButton;
         this.closeImage();
 
@@ -37,33 +37,33 @@ imageContainers.expandedImageContainer = class {
             }
 
         });
-        //close the image container
-        parent.expandedImageContainer.click(function() {
+        // close the image container
+        this.expandedImageContainer.click(function() {
             parent.closeImage();
         });
 
     }
 
+
     //this is used to reload the image when switching between full size and sample
     reloadImage() {
         this.expandedImage.attr("src", "");
-        $(".gallery-image")[parent.currentImagePosition].click();
+        $(".gallery-image")[this.currentImagePosition].click();
     }
     //go to next image or close
     goToNextImage() {
         try {
-            $(".gallery-image")[parent.currentImagePosition + 1].click();
+            $(".gallery-image")[this.currentImagePosition + 1].click();
         } catch (error) {
-            parent.closeImage();
+            this.closeImage();
         }
     }
     // go to previous image or close
     goToPreviousImage() {
         if (this.currentImagePosition >= 1)
-            $(".gallery-image")[parent.currentImagePosition - 1].click();
+            $(".gallery-image")[this.currentImagePosition - 1].click();
         else
-            parent.closeImage();
-
+            this.closeImage();
     }
 
     //pauses videos, clears srcs and hides images
@@ -91,54 +91,46 @@ imageContainers.expandedImageContainer = class {
         this.oldImagePosition = this.currentImagePosition;
         this.currentImagePosition = position;
     }
+
     //opens images and videos
-    openImage(imageJson, position) {
+    openImage(imageModel, position) {
 
         this.expandedImage.attr("src", "");
         this.expandedImageContainer.show();
         this.setSelectedImagePosition(position);
-        this.fullImageLink = imageJson.file_url;
-        var samepleImageURL = null;
-
-        //danbooru uses large_file_url instead of sample_url
-        if (imageJson.hasOwnProperty('sample_url'))
-            samepleImageURL = imageJson.sample_url;
-        else
-            samepleImageURL = imageJson.large_file_url;
+        this.fullImageLink = imageModel.url;
 
         //setting style based on image width
-        if (imageJson.width < imageJson.height || imageJson.image_width < imageJson.image_height)
+        if (imageModel.isPortrait)
             this.expandedImage.addClass("expanded-tall");
 
         //displaying the image based on what type of image it is
         //only danbooru has zip, webm, and mp4 files
-        if (imageJson.file_ext == "webm" || imageJson.file_ext == "mp4") {
-            this.expandedImage.attr("src", "");
-            this.expandedImage.hide();
-            this.expandedWebM.attr("src", imageJson.file_url);
-            this.expandedWebM.show();
-            this.expandedWebM[0].play();
-        } else if (imageJson.file_ext == "zip") {
-            this.expandedImage.attr("src", "");
-            this.expandedImage.hide();
-            this.expandedWebM.attr("src", imageJson.large_file_url);
-            this.expandedWebM.show();
-            this.expandedWebM[0].play();
-        } else {
+        switch (imageModel.type) {
+            default:
+            case "IMAGE":
+                this.expandedWebM.hide();
+                this.expandedImage.show();
 
-            this.expandedWebM.hide();
+                if (this.fullImageSettingButton.isSelected) {
+                    this.expandedImage.attr("src", imageModel.url);
+                } else {
+                    this.expandedImage.attr("src", imageModel.sampleUrl);
 
-            if (this.fullImageSettingButton.isSelected)
-                this.expandedImage.attr("src", imageJson.file_url);
-            else {
-                this.expandedImage.attr("src", samepleImageURL);
+                    this.expandedImage.on("error", function() {
+                        $(this).unbind("error").attr("src", imageModel.sampleUrl.replace("sample/sample-", ""));
+                    });
+                }
+                break;
+            case "ZIP":
+            case "VIDEO":
+                this.expandedWebM.show();
+                this.expandedImage.hide();
+                this.expandedImage.attr("src", "");
+                this.expandedWebM.attr("src", imageModel.url);
+                this.expandedWebM[0].play();
+                break;
 
-                this.expandedImage.on("error", function() {
-                    $(this).unbind("error").attr("src", samepleImageURL.replace("sample/sample-", ""));
-                });
-            }
-
-            this.expandedImage.show();
         }
     }
 
@@ -152,15 +144,39 @@ imageContainers.expandedImageContainer = class {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //this class deals with the construction of images for the catalog container and their behavior
 imageContainers.catalogContainer = class {
 
     tagList = [];
-    container = document.getElementById('catalog-container');
+    container = null; //document.getElementById('catalog-container');
     expandedImageContainer = null;
+    parent = this;
 
     constructor(expandedImageContainer) {
         this.expandedImageContainer = expandedImageContainer;
+        this.container = document.getElementById('catalog-container');
+
     }
 
     hide() {
@@ -185,74 +201,35 @@ imageContainers.catalogContainer = class {
 
     //removing all images in container
     clearImages() {
-
         this.tagList = [];
         while (this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
         }
     }
 
-    //creating images and adding them to the container
-    //creating tags for each image and for the container
-    addImageFromJson(imageJson, callback) {
+
+
+    addImage(imageModel, callback) {
 
         var parent = this;
         var catalogItem = document.createElement("div");
         var image = document.createElement("img");
         var position = this.getNumberOfImages();
-        var samepleImageURL = null;
 
-        // catalogItem.id = "catalog-item";
         catalogItem.classList.add("catalog-item");
-        //creating tags for konachan and yandere
-        try {
-            imageJson.tags.split(" ").forEach(tag => {
-                if (!this.tagList.includes(tag))
-                    this.tagList.push(tag)
-            });
 
-            image.src = imageJson.preview_url;
-            samepleImageURL = imageJson.sample_url;
+        image.src = imageModel.previewUrl;
 
-        } //creating tags for danbooru
-        catch (error) {
-
-            imageJson.tag_string_general.split(" ").forEach(tag => {
-                if (!this.tagList.includes(tag))
-                    this.tagList.push(tag)
-            });
-
-            imageJson.tag_string_character.split(" ").forEach(tag => {
-                if (!this.tagList.includes(tag))
-                    this.tagList.push(tag)
-            });
-
-            imageJson.tag_string_copyright.split(" ").forEach(tag => {
-                if (!this.tagList.includes(tag))
-                    this.tagList.push(tag)
-            });
-
-            imageJson.tag_string_artist.split(" ").forEach(tag => {
-                if (!this.tagList.includes(tag))
-                    this.tagList.push(tag)
-            });
-
-            image.src = imageJson.preview_file_url;
-            samepleImageURL = imageJson.large_file_url;
-        }
-
-        if (samepleImageURL == null)
-            return;
+        //adding tags to all tag list
+        imageModel.tags.forEach(tag => {
+            if (!this.tagList.includes(tag))
+                this.tagList.push(tag)
+        });
 
         image.classList.add("catalog-image-wide");
 
-        //setting tall id for konachan and yandere
-        if (imageJson.preview_width != null && imageJson.preview_height > imageJson.preview_width) {
+        if (imageModel.isPortrait)
             image.classList.add("catalog-image-tall");
-        } //setting tall id for danbooru 
-        else if (imageJson.image_width != null && imageJson.image_height > imageJson.image_width) {
-            image.classList.add("catalog-image-tall");
-        }
 
         image.classList.add("gallery-image");
 
@@ -264,10 +241,10 @@ imageContainers.catalogContainer = class {
             event.stopPropagation();
             parent.expandedImageContainer.setSelectedImagePosition(position);
             callback.apply(this, [
-                (parent.expandedImageContainer.oldImagePosition === parent.expandedImageContainer.currentImagePosition), imageJson
+                (parent.expandedImageContainer.oldImagePosition === parent.expandedImageContainer.currentImagePosition), imageModel
             ]);
         });
-        // reverting back to catalog tags when middle click on catalog container
+        //reverting back to catalog tags when middle click on catalog container
         this.container.addEventListener('auxclick', function(event) {
             parent.expandedImageContainer.setSelectedImagePosition(position);
             callback.apply(this, [true, -1]);
@@ -275,9 +252,8 @@ imageContainers.catalogContainer = class {
 
         // opening expanded image
         catalogItem.onclick = function() {
-            parent.expandedImageContainer.openImage(imageJson, position);
+            parent.expandedImageContainer.openImage(imageModel, position);
         }
 
     }
-
 }
