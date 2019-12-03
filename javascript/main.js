@@ -19,21 +19,17 @@ $(document).ready(function() {
     const fullImageSettingButton = new buttons.SettingsButton($("#full-image-button"), "useFullSizeImage");
     const expandedImageContainer = new imageContainers.expandedImageContainer(fullImageSettingButton);
     const catalogContainer = new imageContainers.catalogContainer(expandedImageContainer);
-
     const booruImages = new booru.images();
 
-    const app = document.getElementById('root');
-    const searchbar = document.getElementById('search-bar');
-    const pageInput = document.getElementById("page-select-input")
-    const historySelector = document.getElementById("history-selector");
-
+    const $historySelector = $("#history-selector");
+    const $pageInput = $("#page-select-input")
+    const $searchbar = $("#search-bar");
     const $previousPageButton = $("#previous-page-button");
     const $nextPageButton = $("#next-page-button");
     const $mascot = $("#mascot");
     const $loading = $("#loading-spinner")
     const $sidebarAllTagContainer = $("#sidebar-all-tags-container");
     const $sidebarImageTagContainer = $("#sidebar-selected-tag-container");
-
     const $searchButton = $("#search-button");
 
     var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || false;
@@ -46,79 +42,77 @@ $(document).ready(function() {
     loadPage();
 
     //on history selector clicked search for the value
-    historySelector.addEventListener('change', (event) => {
-        searchbar.value = event.target.options[event.target.selectedIndex].text;
-        search(searchbar.value);
+    $historySelector.on('change', (event) => {
+        $searchbar.val(event.target.options[event.target.selectedIndex].text);
+        search($searchbar.val());
     });
 
     //on enter click setting search to search bar value and calling search function
-    searchbar.addEventListener("keyup", function(event) {
+    $searchbar.keyup(function(event) {
         //enter click
         if (event.keyCode === 13) {
-            search(searchbar.value);
+            search($searchbar.val());
         }
     });
     //on search button click setting search to search bar value and calling search function
     $searchButton.click(function() {
-        search(searchbar.value);
+        search($searchbar.val());
     });
 
     //handling keyboard navigation
     $(document).keydown(function(event) {
 
-        //if users not typing in the search bar
-        if ($("#searchbar").is(":focus") === false) {
-            //f click
+        //preventing shortcut keys from activating when searching
+        if (!$searchbar.is(":focus")) {
+            //f click toggle full image
             if (event.keyCode === 70) {
                 fullImageSettingButton.button.click();
 
                 if (expandedImageContainer.isVisible())
                     expandedImageContainer.reloadImage();
             }
-            //t click
+            //t click toggle themes
             if (event.keyCode === 84) {
                 isLightTheme = !isLightTheme;
                 localStorage.setItem("isLightTheme", isLightTheme);
                 setTheme(isLightTheme);
             }
-            //c click
+            //c click clear history
             if (event.keyCode == 67) {
                 clearHistory();
             }
-        }
-
-        //if catalog is showing
-        if (!expandedImageContainer.isVisible()) {
-            //back arrow click
-            if (event.keyCode == 37) {
-                $previousPageButton.click();
-            } //forward arrow click
-            if (event.keyCode == 39) {
-                $nextPageButton.click();
-            } //up arrow click
-            if (event.keyCode == 38) {
-                event.preventDefault();
-                $(".gallery-image")[0].click();
+            //if catalog is showing arrow keys change pages
+            if (!expandedImageContainer.isVisible()) {
+                //back arrow click go back a page
+                if (event.keyCode == 37) {
+                    $previousPageButton.click();
+                } //forward arrow click go to next page
+                if (event.keyCode == 39) {
+                    $nextPageButton.click();
+                } //up arrow click open first image
+                if (event.keyCode == 38) {
+                    event.preventDefault();
+                    $(".gallery-image")[0].click();
+                }
+            } //if expanded image is showing arrow keys change images
+            else {
+                //forward arrow click go to next image
+                if (event.keyCode === 39) {
+                    expandedImageContainer.goToNextImage();
+                } //back arrow click go to previous image
+                else if (event.keyCode === 37) {
+                    expandedImageContainer.goToPreviousImage();
+                } //esc, up arrow, down arrow click  close expanded image view
+                else if (event.keyCode == 40 || event.keyCode == 27 || event.keyCode == 38) {
+                    event.preventDefault();
+                    expandedImageContainer.closeImage();
+                } //space bar clicked toggle play pause for videos
+                else if (event.keyCode == 32) {
+                    event.preventDefault();
+                    expandedImageContainer.togglePlayPauseVideo();
+                }
             }
-        } //if expanded image is showing 
-        else {
-            //forward arrow click
-            if (event.keyCode === 39) {
-                expandedImageContainer.goToNextImage();
-            } //back arrow click
-            else if (event.keyCode === 37) {
-                expandedImageContainer.goToPreviousImage();
-            } //esc, up arrow, down arrow click 
-            else if (event.keyCode == 40 || event.keyCode == 27 || event.keyCode == 38) {
-                event.preventDefault();
-                expandedImageContainer.closeImage();
-            } //space bar clicked
-            else if (event.keyCode == 32) {
-                event.preventDefault();
-                expandedImageContainer.togglePlayPauseVideo();
-            }
         }
-
     });
 
     //adding or removing main_light.css style
@@ -130,9 +124,8 @@ $(document).ready(function() {
         }
     }
 
-
     //on page input change go to the selected page
-    pageInput.addEventListener("keyup", function(event) {
+    $pageInput.keyup(function(event) {
         //enter click
         if (event.keyCode === 13) {
             goToPage(this.value);
@@ -269,7 +262,7 @@ $(document).ready(function() {
             var option = $("<option></option>");
             $(option).val(0);
             $(option).html(historyList[i]);
-            $(historySelector).append(option);
+            $historySelector.append(option);
         }
     }
 
@@ -281,7 +274,7 @@ $(document).ready(function() {
             var option = $("<option></option>");
             $(option).val(0);
             $(option).html(item);
-            $(historySelector).prepend(option);
+            $historySelector.prepend(option);
             //only keeping the last 30 searches
             if (historyList.length > 30) {
                 historyList.pop();
@@ -312,7 +305,7 @@ $(document).ready(function() {
     //setting the search bar and page input values and calling load content
     function loadPage() {
         $("#page-select-input").val(pageNumber);
-        searchbar.value = selectedTagList;
+        $searchbar.val(selectedTagList);
 
         loadContent(createURL("https://konachan.com/post.json?"),
             createURL("https://yande.re/post.json?"),
@@ -352,7 +345,6 @@ $(document).ready(function() {
         else if (hentaiSettingButton.isSelected)
             url += "+rating:e";
 
-        // console.log(url);
         return url;
     }
 
