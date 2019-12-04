@@ -218,6 +218,9 @@ imageContainers.catalogContainer = class {
 
         catalogItem.classList.add("catalog-item");
 
+        if(imageModel.previewUrl == null)
+        	return;
+       
         image.src = imageModel.previewUrl;
 
         //adding tags to all tag list
