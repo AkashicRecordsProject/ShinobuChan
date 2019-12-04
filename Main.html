@@ -15,12 +15,7 @@
   <body">
 
     <div id="header">
-        
-        <div><img id="next-page-button" src="./images/forward.png"></div>
-        <input type="number" placeholder="page" id="page-select-input"></input>
-        <div><img id="previous-page-button" src="./images/back.png"></div>
-		
-    		<div id="search-bar-container">
+    	<div id="search-bar-container">
 
               <img id="history-button" src="./images/history_icon.png">
               <select onfocus="this.selectedIndex = -1;" id="history-selector"></select>
@@ -28,19 +23,25 @@
     		      <input list="search-bar-tags" type="text" placeholder="Search.." id="search-bar">
     		      <datalist id="search-bar-tags"></datalist>
     		      <select id="search-bar-resolution-selector">
-    		          <option value="1">Any Size</option>
-    		          <option value="4">1280x720</option>
-    		          <option value="5">1920x1080</option>
-    		          <option value="6">2048x1080</option>
-    		          <option value="7">2560x1440</option>
-                  <option value="720">width>=720</option>
-                  <option value="1080">width>=1080</option>
-                  <option value="1440">width>=1440</option>
-                  <option value="2160">width>=2160</option>
-                  <option value="4320">width>=4320</option>
+			          <option value="1">Any Size</option>
+			          <option value="4">1280x720</option>
+			          <option value="5">1920x1080</option>
+			          <option value="6">2048x1080</option>
+			          <option value="7">2560x1440</option>
+	                  <option value="720">width>=720</option>
+	                  <option value="1080">width>=1080</option>
+	                  <option value="1440">width>=1440</option>
+	                  <option value="2160">width>=2160</option>
+	                  <option value="4320">width>=4320</option>
     		      </select>
     		      <img id="search-button" src="./images/search_icon.png">
-    		</div>
+    	</div>
+
+    	<div id=page-navigation-container>
+        	<div><img id="previous-page-button" src="./images/back.png"></div>
+        	<input type="number" placeholder="page" id="page-select-input"></input>
+        	<div><img id="next-page-button" src="./images/forward.png"></div>
+		</div>
 
     </div>
 

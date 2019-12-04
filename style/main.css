@@ -69,6 +69,27 @@ button {
     display: none;
 }
 
+#page-navigation-container{
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    margin-left: auto;
+}
+
+#page-select-input {
+    background-color: transparent;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    height: var(--header-height);
+    width: 60px;
+    margin-top: 0px;
+    font-size: 20px;
+    border: none;
+    border-radius: 3px;
+    margin-left: 15px;
+}
+
 #previous-page-button {
     display: none;
 }
@@ -79,7 +100,6 @@ button {
     width: calc(var(--header-height) - 10px);
     height: calc(var(--header-height) - 10px);
     filter: brightness(var(--image-brightness)) invert(var(--image-invert));
-    float: right;
     opacity: 0.8;
 }
 
@@ -87,7 +107,6 @@ button {
 #next-page-button:hover {
     opacity: 1;
 }
-
 
 #header {
     background-color: var(--header-background-color);
@@ -97,23 +116,11 @@ button {
     aligin: center;
     height: var(--header-height);
     width: 100%;
+    min-width: 850px;
     border-bottom: solid var(--header-border-background-color) 1px;
-}
-
-
-#page-select-input {
-    background-color: var(--header-background-color);
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    float: right;
-    height: var(--header-height);
-    width: 60px;
-    margin-top: 0px;
-    font-size: 20px;
-    border: none;
-    border-radius: 3px;
-    margin-left: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
 }
 
 input:focus {
@@ -135,27 +142,28 @@ input:focus {
 }
 
 #history-selector:hover {
-      background-color: var(--search-highlight-button-color);
+    background-color: var(--search-highlight-button-color);
 }
 
 select option {
-  background: #fff;
-  color: black;
+    background: #fff;
+    color: black;
 }
 
-select:active, select:hover, select:focus {
-  outline-width: 0;
+select:active,
+select:hover,
+select:focus {
+    outline-width: 0;
 }
 
 
-#history-button {  
+#history-button {
     width: 35px;
     height: 35px;
     max-width: 35px;
     max-height: 35px;
     padding-left: 2px;
     padding-top: 2px;
-    flex: 1;
     pointer-events: none;
     z-index: 2;
 }
@@ -166,7 +174,6 @@ select:active, select:hover, select:focus {
     width: 50%;
     margin-top: 2.5px;
     margin-left: 33%;
-    padding-right: 100px;
 }
 
 #search-bar {
@@ -284,7 +291,7 @@ select:active, select:hover, select:focus {
     background-color: var(--tag-highlight-button-color);
 }
 
-.selected-tag{
+.selected-tag {
     background-color: var(--tag-selected-button-color);
 }
 
@@ -316,7 +323,7 @@ select:active, select:hover, select:focus {
 
 
 #expanded-image {
-  height: auto;
+    height: auto;
     max-width: 95%;
     max-height: 95%;
 }
