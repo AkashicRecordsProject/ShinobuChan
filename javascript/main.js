@@ -4,23 +4,25 @@ $(document).ready(function() {
     var numberOfPagesLoaded = 0;
     var currentImagePosition = 0;
     var oldImagePosition = 0;
-    var selectedTagList = "";
     var fullImageLink = "";
-
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    var oldTagListSize = 0;
+    var siteUrl = window.location.href.split('?')[0];
+    var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || true;
+    var historyList = JSON.parse(localStorage.getItem("history")) || [];
 
     //creating the setting buttons
-    const danbooruSettingButton = new buttons.SettingsButton($("#danbooru-button"), "searchDanbooru");
-    const konachanSettingButton = new buttons.SettingsButton($("#konachan-button"), "searchKonachan");
-    const yandereSettingButton = new buttons.SettingsButton($("#yandere-button"), "searchYandere");
-    const sfwSettingButton = new buttons.SettingsButton($("#sfw-button"), "showSFW");
-    const ecchiSettingButton = new buttons.SettingsButton($("#ecchi-button"), "showEcchi");
-    const hentaiSettingButton = new buttons.SettingsButton($("#hentai-button"), "showHentai");
+    const danbooruSettingButton = new buttons.SettingsButton($("#danbooru-button"));
+    const konachanSettingButton = new buttons.SettingsButton($("#konachan-button"));
+    const yandereSettingButton = new buttons.SettingsButton($("#yandere-button"));
+    const sfwSettingButton = new buttons.SettingsButton($("#sfw-button"));
+    const ecchiSettingButton = new buttons.SettingsButton($("#ecchi-button"));
+    const hentaiSettingButton = new buttons.SettingsButton($("#hentai-button"));
     const fullImageSettingButton = new buttons.SettingsButton($("#full-image-button"), "useFullSizeImage");
     const expandedImageContainer = new imageContainers.expandedImageContainer(fullImageSettingButton);
     const catalogContainer = new imageContainers.catalogContainer(expandedImageContainer);
     const booruImages = new booru.images();
 
+    const $body = $("body");
     const $historySelector = $("#history-selector");
     const $pageInput = $("#page-select-input")
     const $searchbar = $("#search-bar");
@@ -31,152 +33,211 @@ $(document).ready(function() {
     const $sidebarAllTagContainer = $("#sidebar-all-tags-container");
     const $sidebarImageTagContainer = $("#sidebar-selected-tag-container");
     const $searchButton = $("#search-button");
+    const $searchbarResolutionSelector = $("#search-bar-resolution-selector")
+    const $sidebarPreviewContainer = $("#sidebar-preview-container");
+    const $sidebarContainer = $("#sidebar-container")
+    const $searchBarTags = $('#search-bar-tags')
+    
+    //getting parameters setting values
+    $searchbarResolutionSelector.val(getUrlParam("size", 1));
+    $searchbar.val(getUrlParam("tags", ""));
 
-    var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || false;
-    var historyList = JSON.parse(localStorage.getItem("history")) || [];
+    pageNumber = parseInt(getUrlParam("page", 1));
+    pageNumber = pageNumber < 1 ? 1 : pageNumber;
+    $pageInput.val(pageNumber);
 
+    //loading page
+    document.title = "ShinobuChan | Page " + pageNumber + " | " + $searchbar.val().replace(/,/g, ' ');
     setTheme(isLightTheme);
-    //getting saved history
+    loadSettingButtonsFromParams();
     loadHistory();
-    //first load 
-    loadPage();
+    loadBooruPages();
 
     //on history selector clicked search for the value
     $historySelector.on('change', (event) => {
         $searchbar.val(event.target.options[event.target.selectedIndex].text);
-        search($searchbar.val());
+        search();
     });
-
+    //checking to see if selected tags are still valid
+    $sidebarContainer.hover(function(){
+        updateTagsSelection();
+    });
     //on enter click setting search to search bar value and calling search function
     $searchbar.keyup(function(event) {
         //enter click
-        if (event.keyCode === 13) {
-            search($searchbar.val());
+        if(event.keyCode === 13) {
+            search();
+        }//return, delete key click update the selected tags when 
+        if(event.keyCode === 8 || event.keyCode === 46) {
+            if(oldTagListSize != getSearchBarTags().length){
+                oldTagListSize = getSearchBarTags().length;
+                updateTagsSelection();
+            } else if(oldTagListSize == 1 &&  $searchbar.val() == ""){
+                updateTagsSelection();
+            }
         }
     });
-    //on search button click setting search to search bar value and calling search function
-    $searchButton.click(function() {
-        search($searchbar.val());
-    });
-
     //handling keyboard navigation
     $(document).keydown(function(event) {
-
+        $searchbar.focusout(function(){
+            updateTagsSelection();
+        });
         //preventing shortcut keys from activating when searching
-        if (!$searchbar.is(":focus")) {
+        if(!$searchbar.is(":focus")) {
             //f click toggle full image
-            if (event.keyCode === 70) {
+            if(event.keyCode === 70) {
                 fullImageSettingButton.button.click();
 
-                if (expandedImageContainer.isVisible())
+                if(expandedImageContainer.isVisible())
                     expandedImageContainer.reloadImage();
             }
             //t click toggle themes
-            if (event.keyCode === 84) {
+            if(event.keyCode === 84) {
                 isLightTheme = !isLightTheme;
                 localStorage.setItem("isLightTheme", isLightTheme);
                 setTheme(isLightTheme);
             }
             //c click clear history
-            if (event.keyCode == 67) {
+            if(event.keyCode == 67) {
                 clearHistory();
             }
             //if catalog is showing arrow keys change pages
-            if (!expandedImageContainer.isVisible()) {
+            if(!expandedImageContainer.isVisible()) {
                 //back arrow click go back a page
-                if (event.keyCode == 37) {
+                if(event.keyCode == 37) {
                     $previousPageButton.click();
                 } //forward arrow click go to next page
-                if (event.keyCode == 39) {
+                else if(event.keyCode == 39) {
                     $nextPageButton.click();
                 } //up arrow click open first image
-                if (event.keyCode == 38) {
+                else if(event.keyCode == 38) {
                     event.preventDefault();
                     $(".gallery-image")[0].click();
+                } //return key click go to previous page 
+                else if(event.keyCode == 8) {
+                    window.history.back();
                 }
+                //s clicked set filter to SFW
+     			if(event.keyCode == 83) {
+                    sfwSettingButton.setActive(true);
+                    ecchiSettingButton.setActive(false);
+                    hentaiSettingButton.setActive(false);
+                }
+                //e clicked set filter to ecchi
+                else if(event.keyCode == 69) {    				
+                    sfwSettingButton.setActive(false);
+                    ecchiSettingButton.setActive(true);
+                    hentaiSettingButton.setActive(false);
+                }
+                //h clicked set filter to hentai
+                else if(event.keyCode == 72) {    				
+                    sfwSettingButton.setActive(false);
+                    ecchiSettingButton.setActive(false);
+                    hentaiSettingButton.setActive(true);
+                }
+                //enter click while editing page select input
+    			if(!$pageInput.is(":focus") && event.keyCode === 13) {
+                    search();
+    			}
+
             } //if expanded image is showing arrow keys change images
             else {
                 //forward arrow click go to next image
-                if (event.keyCode === 39) {
+                if(event.keyCode === 39) {
                     expandedImageContainer.goToNextImage();
                 } //back arrow click go to previous image
-                else if (event.keyCode === 37) {
+                else if(event.keyCode === 37) {
                     expandedImageContainer.goToPreviousImage();
-                } //esc, up arrow, down arrow click  close expanded image view
-                else if (event.keyCode == 40 || event.keyCode == 27 || event.keyCode == 38) {
+                } //esc, up arrow, down arrow, return click  close expanded image view
+                else if(event.keyCode == 40 || event.keyCode == 27 || event.keyCode == 38 || event.keyCode == 8) {
                     event.preventDefault();
                     expandedImageContainer.closeImage();
                 } //space bar clicked toggle play pause for videos
-                else if (event.keyCode == 32) {
+                else if(event.keyCode == 32) {
                     event.preventDefault();
                     expandedImageContainer.togglePlayPauseVideo();
                 }
             }
         }
-    });
-
-    //adding or removing main_light.css style
-    function setTheme(isLightTheme) {
-        if (isLightTheme) {
-            $('head').append('<link rel="stylesheet" href="./style/main_light.css" type="text/css" />');
-        } else {
-            $('link[rel=stylesheet][href~="./style/main_light.css"]').remove();
+        //comma, space bar clicked while seachbar is in focus update selected tags
+        if(event.keyCode === 188 || event.keyCode === 32) {
+            updateTagsSelection();
         }
-    }
-
-    //on page input change go to the selected page
+    });
+    //on search button click setting search to search bar value and calling search function
+    $searchButton.click(function() {
+        search();
+    });
+    //enter clicked when editing page value go to new page
     $pageInput.keyup(function(event) {
-        //enter click
-        if (event.keyCode === 13) {
-            goToPage(this.value);
-        }
+        if(event.keyCode === 13) 
+            goToPage(this.value); 
     });
-
-    //on next page click 
+    //on next page button click 
     $nextPageButton.click(function() {
+        $searchbar.val(getUrlParam("tags", ""));
+        loadSettingButtonsFromParams();
         goToPage(pageNumber + 1);
-
     });
-
+    //on previous page button click
     $previousPageButton.click(function() {
+        $searchbar.val(getUrlParam("tags", ""));
+        loadSettingButtonsFromParams();
         goToPage(pageNumber - 1);
     });
-
+    //show previous page button if not on first page
     function goToPage(page) {
         pageNumber = parseInt(page);
-        //show previous page button if not on first page
-        if (pageNumber <= 1)
-            pageNumber = 1;
-        else
-            $previousPageButton.show();
-
+        pageNumber <= 1 ? pageNumber = 1 : $previousPageButton.show();
         loadPage();
     }
+    //assigning the setting buttons using parameters
+    function loadSettingButtonsFromParams(){
+        var originalBooruParams = getUrlParam("booru", "");
+        var originalfilterParams = getUrlParam("filter", "s");
 
+        danbooruSettingButton.setActive(originalBooruParams.includes("d"));
+        konachanSettingButton.setActive(originalBooruParams.includes("k"));
+        yandereSettingButton.setActive(originalBooruParams.includes("y"));
+        sfwSettingButton.setActive(originalfilterParams.includes("s"));
+        ecchiSettingButton.setActive(originalfilterParams.includes("e"));
+        hentaiSettingButton.setActive(originalfilterParams.includes("h"));
+    }
+    //setting theme style
+    function setTheme(isLightTheme) {
+        if(isLightTheme) 
+            $('head').append('<link rel="stylesheet" href="./style/main_light.css" type="text/css" />');
+         else 
+            $('link[rel=stylesheet][href~="./style/main_light.css"]').remove();
+    }
+    //adding selected-tag class to searched tags
+    function updateTagsSelection(){
+        //clearing selected tags
+        $("button").removeClass("selected-tag");
+        getSearchBarTags().forEach(tag => {
+            $("button").filter(function() {
+                return $(this).text() === tag;
+            }).addClass("selected-tag");
+        });
+    }
     //clearing tags from sidebar selected image tags and adding new tags from the tag list
     function createSelectedImageTagList(tagList) {
         //clearing tags from side bar
         $sidebarImageTagContainer.empty();
-        //scrolling back to top
-        $sidebarImageTagContainer.scrollTop = 100;
+        $sidebarImageTagContainer.scrollTop(0);
         tagList.sort();
         //adding selected tags to the top of the list
-        tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
+        tagList = Array.from(new Set([...getSearchBarTags(), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
         createTag(tagList, $sidebarImageTagContainer, false);
     }
-
     //clearing tags from sidebar catalog tags and adding new tags from the tag list
     function createCatalogTagList(tagList) {
-        //clearing tags from side bar
         $sidebarAllTagContainer.empty();
-        //clearing seachbar suggestions 
-        $('#search-bar-tags').html("");
-        //scrolling back to top
-        $sidebarAllTagContainer.scrollTop = 100;
+        $searchBarTags.html("");
         tagList.sort();
         //adding selected tags to the top of the list
-        tagList = Array.from(new Set([...selectedTagList.split(" "), ...tagList]));
+        tagList = Array.from(new Set([...getSearchBarTags(), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
         createTag(tagList, $sidebarAllTagContainer, true);
     }
@@ -187,75 +248,108 @@ $(document).ready(function() {
             var button = document.createElement("button");
             button.innerHTML = tag;
             button.classList.add("tag-item");
-
             //setting style on selected tags
-            if (selectedTagList.split(" ").includes(tag))
+            if(getSearchBarTags().includes(tag))
                 button.classList.add("selected-tag");
 
             tagContainerr.append(button);
             //adding tag to seachbar suggestion list
-            if (addToSearch)
-                $('#search-bar-tags').append("<option value='" + tag + "'>");
+            if(addToSearch)
+                $searchBarTags.append("<option value='" + tag + "'>");
 
+            //handling on tag button pressed
             button.onclick = function() {
+                //removing selected tags
+                if(getSearchBarTags().includes(tag)){
+                    $searchbar.val($searchbar.val().replace("," + tag, ""));
+                    $searchbar.val($searchbar.val().replace(tag, ""));
 
-                var tags = selectedTagList.split(" ");
-                //preventing duplicate tags
-                if (tags.includes(tag))
-                    tags.splice(tags.indexOf(tag), 1);
-                else
-                    tags.push(tag)
+                    if($searchbar.val().substring(0,1) == ",")
+                         $searchbar.val($searchbar.val().replace(",", ""));
 
-                search(tags.join(' '));
+                    this.classList.remove("selected-tag");
+                }//adding new tag to search bar
+                else { 
+                    if($searchbar.val() != "")
+                        $searchbar.val($searchbar.val() + "," + tag);
+                    else
+                        $searchbar.val($searchbar.val() + tag);
+
+                    this.classList.add("selected-tag");
+                }
             }
         });
-
     }
-    //checking to see if all pages are loaded, setting the catalog tags, and showing the catalog container 
-    function onLoaded() {
-
-        $loading.hide();
-
-        var pagesToLoad = 0;
+    //handling middle click on images
+    function toggleAllTagContainerVisibility(isSameImage, imageModel) {
+        //used to show all catalog tags when catalog container is clicked
+        if(imageModel == -1) {
+            if($sidebarImageTagContainer.is(":visible")) {
+                $sidebarAllTagContainer.show();
+                $sidebarImageTagContainer.hide();
+                $sidebarPreviewContainer.hide();
+            }
+            return;
+        }
+        //show selected image tags if not already selected
+        if(!isSameImage || $sidebarImageTagContainer.is(":hidden")) {
+            $sidebarAllTagContainer.hide();
+            $sidebarImageTagContainer.show();
+            $sidebarPreviewContainer.hide();
+            createSelectedImageTagList(imageModel.tags);
+        } //show catalog container tags 
+        else if($sidebarImageTagContainer.is(":visible")) {
+            $sidebarAllTagContainer.show();
+            $sidebarImageTagContainer.hide();
+            $sidebarPreviewContainer.show();
+        }
+    }
+    //checking to see if all pages are loaded, creating the catalog and tags
+    function onBooruLoad() {
         //adding number of pages to load based on how many request are being made
-        if (danbooruSettingButton.isSelected)
+        numberOfPagesLoaded++;
+        var pagesToLoad = 0;
+        if(danbooruSettingButton.isSelected)
             pagesToLoad++;
-        if (konachanSettingButton.isSelected)
+        if(konachanSettingButton.isSelected)
             pagesToLoad++;
-        if (yandereSettingButton.isSelected)
+        if(yandereSettingButton.isSelected)
             pagesToLoad++;
+        //all pages are loaded add images to the catalog and create tags
+        if(pagesToLoad == numberOfPagesLoaded) {
 
-        //showing the catalog container and creating the tags after all pages are loaded
-        if (pagesToLoad == numberOfPagesLoaded) {
-            //letting the user click
-            $("body").removeClass("disable")
-
+            $body.removeClass("disable")
+            $loading.hide();
             catalogContainer.show();
+            //adding images to the catalog, passing middle click action to images
+            booruImages.getImageList().forEach(image => {
+                catalogContainer.addImage(image, toggleAllTagContainerVisibility);
+            });
+
             createCatalogTagList(catalogContainer.getTags());
 
             $sidebarAllTagContainer.show();
             $sidebarImageTagContainer.hide();
             //no images found preventing going to the next page and showing the mascot
-            if (catalogContainer.getNumberOfImages() < 1) {
+            if(catalogContainer.getNumberOfImages() < 1) {
                 $nextPageButton.hide();
                 $mascot.show();
-            } //not the last page showing next page button 
+            }//not the last page showing next page button 
             else {
                 $nextPageButton.show();
                 $mascot.hide();
             }
             //showing the previous button if not on the first page
-            if (pageNumber == 1)
+            if(pageNumber == 1)
                 $previousPageButton.hide();
-            else if (pageNumber == 2)
+            else
                 $previousPageButton.show();
-        } //hiding the catalog until all pages are loaded
+        }//hiding the catalog until all pages are loaded
         else {
             catalogContainer.hide();
         }
 
     }
-
     //adding saved history values to the history Selector
     function loadHistory() {
         for (var i = 0; i < historyList.length; i++) {
@@ -265,18 +359,17 @@ $(document).ready(function() {
             $historySelector.append(option);
         }
     }
-
     //adding searches to the history in LIFO order
     function addToHistory(item) {
         //preventing empty tags from being added to history
-        if (/\S/.test(item) && typeof(item) != "undefined") {
+        if(/\S/.test(item) && typeof(item) != "undefined") {
             historyList.unshift(item);
             var option = $("<option></option>");
             $(option).val(0);
             $(option).html(item);
             $historySelector.prepend(option);
             //only keeping the last 30 searches
-            if (historyList.length > 30) {
+            if(historyList.length > 30) {
                 historyList.pop();
                 document.getElementById("history-selector").remove(30);
             }
@@ -284,134 +377,139 @@ $(document).ready(function() {
             localStorage.setItem("history", JSON.stringify(historyList));
         }
     }
-
     //removing all values from history selector and clearing local history
     function clearHistory() {
-        var i;
-        for (i = document.getElementById("history-selector").options.length - 1; i >= 0; i--) {
+        for (var i = document.getElementById("history-selector").options.length - 1; i >= 0; i--) {
             document.getElementById("history-selector").remove(i);
         }
         historyList = [];
         localStorage.setItem("history", JSON.stringify(historyList));
     }
-
     //adding search to history setting the page number to 1 and loading pages
-    function search(tags) {
-        selectedTagList = tags;
-        addToHistory(tags);
+    function search() {
+        //removing leading comma from search
+        if($searchbar.val().substring(0,1) == ",")
+            $searchbar.val($searchbar.val().replace(",", ""));
+
+        addToHistory($searchbar.val());
         pageNumber = 1;
         loadPage();
     }
-    //setting the search bar and page input values and calling load content
+    //setting the parameters and loading a new page
     function loadPage() {
-        $("#page-select-input").val(pageNumber);
-        $searchbar.val(selectedTagList);
 
-        loadContent(createURL("https://konachan.com/post.json?"),
-            createURL("https://yande.re/post.json?"),
-            createURL("https://danbooru.donmai.us/posts.json?"));
+        siteUrl += "?";
 
+        if(getSearchBarTags() != 0)
+            siteUrl += "tags=" + getSearchBarTags() + "&";
+    
+        if(pageNumber < 1)
+            pageNumber = 1;
+
+        siteUrl += "page=" + pageNumber;
+        siteUrl += "&size=" + $searchbarResolutionSelector.find(":selected").val();
+
+        if(danbooruSettingButton.isSelected || konachanSettingButton.isSelected || yandereSettingButton.isSelected){
+            siteUrl += "&booru=";
+            if(danbooruSettingButton.isSelected)
+             siteUrl += "d";
+            if(konachanSettingButton.isSelected)
+             siteUrl += "k";
+            if(yandereSettingButton.isSelected)
+             siteUrl += "y";
+        }
+
+        if(sfwSettingButton.isSelected || ecchiSettingButton.isSelected || hentaiSettingButton.isSelected) {
+            siteUrl += "&filter=";
+            if(sfwSettingButton.isSelected)
+             siteUrl += "s";
+            if(ecchiSettingButton.isSelected)
+             siteUrl += "e";
+            if(hentaiSettingButton.isSelected)
+             siteUrl += "h";
+        }
+         window.location.href = siteUrl;
     }
-
-    //uses the settings and selected tags to create a URL
-    function createURL(URL) {
+    //returning a list of searched tags
+    function getSearchBarTags(){
+        return $searchbar.val().split(",");
+    }
+    //creating a booru url using the selected settings
+    function createBooruURL(booruURL) {
         //creating the basic url
-        var url = URL +
+        var url = booruURL +
             "page=" + pageNumber +
-            "&tags=" + selectedTagList;
-
-        var resolution = $("#search-bar-resolution-selector option:selected");
-
+            "&tags=" + getSearchBarTags();
         //adding resolution to the URL
-        if (resolution.index() != 0) {
-            if (resolution.index() <= 4) {
+        var resolution = $searchbarResolutionSelector.find(":selected");
+        if(resolution.index() != 0) {
+            if(resolution.index() <= 4) {
                 url += "+width:" + resolution.html().split("x")[0];
                 url += "+height:" + resolution.html().split("x")[1];
-            } else {
+            } 
+            else{
                 url += "+width:>=" + resolution.val();
             }
         }
         //adding image rating to the URL
-        if (sfwSettingButton.isSelected && ecchiSettingButton.isSelected && hentaiSettingButton.isSelected)
+        if(sfwSettingButton.isSelected && ecchiSettingButton.isSelected && hentaiSettingButton.isSelected)
             url += "";
-        else if (sfwSettingButton.isSelected && ecchiSettingButton.isSelected)
+        else if(sfwSettingButton.isSelected && ecchiSettingButton.isSelected)
             url += "+rating:questionableless";
-        else if (hentaiSettingButton.isSelected && ecchiSettingButton.isSelected)
+        else if(hentaiSettingButton.isSelected && ecchiSettingButton.isSelected)
             url += "+rating:questionableplus";
-        else if (sfwSettingButton.isSelected)
+        else if(sfwSettingButton.isSelected)
             url += "+rating:s";
-        else if (ecchiSettingButton.isSelected)
+        else if(ecchiSettingButton.isSelected)
             url += "+rating:q";
-        else if (hentaiSettingButton.isSelected)
+        else if(hentaiSettingButton.isSelected)
             url += "+rating:e";
 
         return url;
     }
-
-    //adding images to catalog container from json 
-    function onLoad() {
-
-        catalogContainer.clearImages();
-
-        booruImages.getImageList().forEach(image => {
-            catalogContainer.addImage(image, toggleTags);
-        });
-
-        numberOfPagesLoaded++;
-        onLoaded();
-    }
-
-    //handling middle click on images
-    function toggleTags(isSameImage, imageModel) {
-
-        //used to show all catalog tags when catalog container is clicked
-        if (imageModel == -1) {
-            if ($sidebarImageTagContainer.is(":visible")) {
-                $sidebarAllTagContainer.show();
-                $sidebarImageTagContainer.hide();
-            }
-            return;
-        }
-        //show selected image tags if not already selected
-        if (!isSameImage || $sidebarImageTagContainer.is(":hidden")) {
-            $sidebarAllTagContainer.hide();
-            $sidebarImageTagContainer.show();
-            createSelectedImageTagList(imageModel.tags);
-        } //show catalog container tags 
-        else if ($sidebarImageTagContainer.is(":visible")) {
-            $sidebarAllTagContainer.show();
-            $sidebarImageTagContainer.hide();
-        }
-    }
-
-    //making request from sites for json 
-    function loadContent(konachanURL, yandereURL, danbooruURL) {
-
+    //getting json files from booru sites
+    function loadBooruPages() {
         $loading.show();
-
+        catalogContainer.hide();
         currentImagePosition = 0;
         numberOfPagesLoaded = 0;
-
-        $("body").addClass("disable")
-
-        //if no site is selected use konachan as default
-        if (!konachanSettingButton.isSelected && !danbooruSettingButton.isSelected && !yandereSettingButton.isSelected) {
+        $body.addClass("disable");
+        //if no site is selected use all sites as default
+        if(!konachanSettingButton.isSelected && !danbooruSettingButton.isSelected && !yandereSettingButton.isSelected) {
             konachanSettingButton.button.click();
+            danbooruSettingButton.button.click();
+            yandereSettingButton.button.click();
         }
         //if no image rating is selected use sfw as default, or if hentai and sfw are selected default to sfw
-        if (!sfwSettingButton.isSelected && !ecchiSettingButton.isSelected && !hentaiSettingButton.isSelected)
+        if(!sfwSettingButton.isSelected && !ecchiSettingButton.isSelected && !hentaiSettingButton.isSelected)
             sfwSettingButton.button.click();
-        else if (sfwSettingButton.isSelected && hentaiSettingButton.isSelected && !ecchiSettingButton.isSelected)
+        else if(sfwSettingButton.isSelected && hentaiSettingButton.isSelected && !ecchiSettingButton.isSelected)
             hentaiSettingButton.button.click();
 
-        booruImages.clearImageList();
-        if (konachanSettingButton.isSelected)
-            booruImages.loadImages(konachanURL, onLoad);
-        if (yandereSettingButton.isSelected)
-            booruImages.loadImages(yandereURL, onLoad);
-        if (danbooruSettingButton.isSelected)
-            booruImages.loadImages(danbooruURL, onLoad);
+        //creating the url and passing onLoad callback 
+        if(konachanSettingButton.isSelected)
+            booruImages.loadImages(createBooruURL("https://konachan.com/post.json?"), onBooruLoad);
+        if(yandereSettingButton.isSelected)
+            booruImages.loadImages(createBooruURL("https://yande.re/post.json?"), onBooruLoad);
+        if(danbooruSettingButton.isSelected)
+            booruImages.loadImages(createBooruURL("https://danbooru.donmai.us/posts.json?"), onBooruLoad);
+    }
 
+    function getUrlParam(parameter, defaultValue){
+        var urlParameter = defaultValue;
+
+        if(window.location.href.indexOf(parameter) > -1)
+            urlParameter = getUrlVars()[parameter];
+
+        return urlParameter;
+    }
+
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
     }
 
 });

@@ -6,10 +6,11 @@
 :root {
     --text-color: #ffffff;
     --image-background-color: #282a2e;
-    --highlight-color: #c5c8c6;
+    --highlight-color: #78a259;
     --background-color: #1d1f21;
     --sidebar-background-color: #303238;
-    --large-image-background-color: rgba(00, 00, 00, 0.8);
+    --large-image-background-color: #1d1f21;
+    --large-image-background-text-color: #78a259;
     --header-background-color: #282a2e;
     --header-border-background-color: #1d1f21;
     --container-background-color: #eee;
@@ -86,7 +87,7 @@ button {
     margin-top: 0px;
     font-size: 20px;
     border: none;
-    border-radius: 3px;
+    /*border-radius: 3px;*/
     margin-left: 15px;
 }
 
@@ -121,6 +122,7 @@ button {
     display: flex;
     flex-direction: row;
     align-items: start;
+    z-index: 20;
 }
 
 input:focus {
@@ -251,7 +253,7 @@ select:focus {
     text-decoration: none;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px; /*8*/
 }
 
 
@@ -278,12 +280,11 @@ select:focus {
     background-color: var(--tag-button-color);
     padding: 5px;
     font-size: 15px;
-    border-radius: 8px;
     color: white;
     font-size: 15px;
     word-break: break-word;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     text-decoration: none;
 }
 
@@ -310,22 +311,40 @@ select:focus {
 
 #expanded-image-container {
     background-color: var(--large-image-background-color);
+        /*background-color: #263238;*/
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
+    z-index: 30;
     display: flex;
     align-items: center;
     justify-content: center;
+    /*padding-top: calc(var(--header-height) / 2);*/
 }
 
+#image-position-counter {
+    position: fixed;
+    width: 100%;
+    text-align: right;
+    top: 0;
+    font-size: 30px;
+    color: black;
+    z-index: 100;
+    color: var(--large-image-background-text-color);
+}
+
+#expanded-webm {
+    background-color: #0000;
+}
 
 #expanded-image {
     height: auto;
     max-width: 95%;
     max-height: 95%;
+        box-shadow: 5px 5px 5px 5px rgba(0,0,0,0.15);
+
 }
 
 .expanded-tall {
@@ -385,6 +404,10 @@ html {
     width: 10px;
 }
 
+.invisible-scrollbar::-webkit-scrollbar {
+  width: 0px;
+}
+
 ::-webkit-scrollbar-track {
     background: var(--sidebar-background-color);
 }
@@ -400,4 +423,70 @@ html {
 
 ::-webkit-scrollbar-corner {
     background: var(--sidebar-background-color);
+}
+
+
+#sidebar-preview-container {
+  background-color: var(--sidebar-background-color);
+  /*margin-top: 0.5px;*/
+    width: 103.2%;
+    height: 100%;
+    position: absolute;
+    box-shadow: 10px 0 5px 0px rgba(0,0,0,0.25);
+    display: none;
+}
+
+#sidebar-preview-info {
+    padding: 10px;
+    font-size: 18px;
+    color: var(--search-button-color);
+    line-height: 30px;
+    overflow:hidden;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;  
+}
+
+#sidebar-preview-image{
+  position: absolute;
+  max-height: 650px;
+  z-index: 1;
+}
+#sidebar-preview-image-tmp{
+  position: relative;
+  max-height: 650px;
+  z-index: 0;
+}
+/* Tooltip text */
+.catalog-item .tooltiptext {
+  background-color: var(--tag-button-color);
+  visibility: hidden;
+  width: 300px;
+  height: auto;
+  max-height: 500px;
+  color: #fff;
+  padding: 5px;
+  border-radius: 6px;
+   text-align: left;
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+  /*opacity: 0.5;*/
+  /*right: 250px;*/
+  /*top: 250px;*/
+  /*left: 50%;*/
+
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.catalog-item:hover .tooltiptext {
+  visibility: visible;
+}
+
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }

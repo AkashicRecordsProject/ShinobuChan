@@ -16,36 +16,39 @@
 
     <div id="header">
     	<div id="search-bar-container">
-
-              <img id="history-button" src="./images/history_icon.png">
-              <select onfocus="this.selectedIndex = -1;" id="history-selector"></select>
-
-    		      <input list="search-bar-tags" type="text" placeholder="Search.." id="search-bar">
-    		      <datalist id="search-bar-tags"></datalist>
-    		      <select id="search-bar-resolution-selector">
-			          <option value="1">Any Size</option>
-			          <option value="4">1280x720</option>
-			          <option value="5">1920x1080</option>
-			          <option value="6">2048x1080</option>
-			          <option value="7">2560x1440</option>
-	                  <option value="720">width>=720</option>
-	                  <option value="1080">width>=1080</option>
-	                  <option value="1440">width>=1440</option>
-	                  <option value="2160">width>=2160</option>
-	                  <option value="4320">width>=4320</option>
-    		      </select>
-    		      <img id="search-button" src="./images/search_icon.png">
+          <img id="history-button" src="./images/history_icon.png">
+          <select onfocus="this.selectedIndex = -1;" id="history-selector" title="Search History"></select>
+          <input list="search-bar-tags" type="email" multiple placeholder="Search.." id="search-bar" title="Separate search results with , to have suggestions Ex. landscape,sunset">
+          <datalist id="search-bar-tags"></datalist>
+          <select id="search-bar-resolution-selector" title="Select image size">
+              <option value="1">Any Size</option>
+              <option value="4">1280x720</option>
+              <option value="5">1920x1080</option>
+              <option value="6">2048x1080</option>
+              <option value="7">2560x1440</option>
+              <option value="720">width>=720</option>
+              <option value="1080">width>=1080</option>
+              <option value="1440">width>=1440</option>
+              <option value="2160">width>=2160</option>
+              <option value="4320">width>=4320</option>
+          </select>
+          <img id="search-button" src="./images/search_icon.png" title="Search">
     	</div>
 
-    	<div id=page-navigation-container>
-        	<div><img id="previous-page-button" src="./images/back.png"></div>
-        	<input type="number" placeholder="page" id="page-select-input"></input>
-        	<div><img id="next-page-button" src="./images/forward.png"></div>
-		</div>
-
+    	<div id="page-navigation-container">
+        	<div><img id="previous-page-button" src="./images/back.png" title="Preivous page"></div>
+        	<input type="number" placeholder="page" id="page-select-input" title="Go to page">
+        	<div><img id="next-page-button" src="./images/forward.png" title="Next page"></div>
+		  </div>
     </div>
 
     <div id=sidebar-container>
+
+      <div id=sidebar-preview-container>
+          <img class="catalog-image-wide" id="sidebar-preview-image">
+          <img class="catalog-image-wide" id="sidebar-preview-image-tmp">
+          <div id="sidebar-preview-info"></div>
+      </div>
 
       <div id="sidebar-settings-container">
           <button class="sidebar-setting-button" id="danbooru-button">Danbooru</button>
@@ -62,10 +65,12 @@
 
     </div>
 
-    <div id="expanded-image-container" >
+    <div id="expanded-image-container">
         <img id="expanded-image">
         <video controls muted loop id="expanded-webm" controls><sourcetype="video/x-webm></sourcetype="video></video>
     </div>
+
+    <div id="image-position-counter"></div>
 
     <div id="root">
         <div id="loading-spinner"><img src="./images/loading.svg"></div>
@@ -74,5 +79,5 @@
     </div>
 
   </body>
-
+  
 </html>

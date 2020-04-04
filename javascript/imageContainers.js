@@ -3,10 +3,12 @@ window.imageContainers = window.myNameSpace || {};
 //this class deals with keeping track of selected images and navigating the expanded image mode
 imageContainers.expandedImageContainer = class {
 
+    body = $("body");
     expandedImageContainer = $("#expanded-image-container");
     expandedImage = $("#expanded-image");
     expandedWebM = $("#expanded-webm");
     catalogContainer = $('#catalog-container');
+    positionCounter = $("#image-position-counter");
 
     fullImageSettingButton = null;
     currentImagePosition = -1;
@@ -22,7 +24,7 @@ imageContainers.expandedImageContainer = class {
         this.expandedWebM.click(function(e) {
             e.stopPropagation();
         });
-        //open full sized image in new tab
+        //open full sized image in new tab on middle click
         this.expandedImage.mouseup(function(e) {
             if (e.which == 2)
                 window.open(parent.fullImageLink, '_blank');
@@ -35,22 +37,24 @@ imageContainers.expandedImageContainer = class {
             } catch (error) {
                 parent.expandedImageContainer.click();
             }
-
         });
         // close the image container
         this.expandedImageContainer.click(function() {
             parent.closeImage();
         });
-
+        //navigating using mouse scroll
+        parent.expandedImageContainer.on('mousewheel', function(e){
+          e.preventDefault();
+          event.deltaY < 0 ? parent.goToPreviousImage() : parent.goToNextImage(); 
+          return false;
+        });
     }
-
-
     //this is used to reload the image when switching between full size and sample
     reloadImage() {
         this.expandedImage.attr("src", "");
         $(".gallery-image")[this.currentImagePosition].click();
     }
-    //go to next image or close
+    //go to next image or exit expanded image mode
     goToNextImage() {
         try {
             $(".gallery-image")[this.currentImagePosition + 1].click();
@@ -58,16 +62,17 @@ imageContainers.expandedImageContainer = class {
             this.closeImage();
         }
     }
-    // go to previous image or close
+    // go to previous image or exit expanded image mode
     goToPreviousImage() {
-        if (this.currentImagePosition >= 1)
-            $(".gallery-image")[this.currentImagePosition - 1].click();
+        if (this.currentImagePosition > 0)
+            $(".gallery-image")[this.currentImagePosition - 1].click()
         else
             this.closeImage();
     }
-
-    //pauses videos, clears srcs and hides images
+    //pauses videos, clear src and hide images
     closeImage() {
+        this.body.removeClass("invisible-scrollbar");
+        this.positionCounter.text("");
         this.expandedImageContainer.hide();
         this.expandedImage.hide();
         this.expandedWebM.hide();
@@ -78,37 +83,32 @@ imageContainers.expandedImageContainer = class {
         if (parent.oldImagePosition != parent.currentImagePosition)
             parent.currentImagePosition = -1;
     }
-
+    //toggle play pause on videos
     togglePlayPauseVideo() {
-        if (this.expandedWebM[0].paused == true) {
-            this.expandedWebM[0].play();
-        } else {
-            this.expandedWebM[0].pause();
-        }
+        this.expandedWebM[0].paused ? this.expandedWebM[0].play() : this.expandedWebM[0].pause();
     }
     //used for keeping track of selected image for tags and navigation
     setSelectedImagePosition(position) {
         this.oldImagePosition = this.currentImagePosition;
         this.currentImagePosition = position;
     }
-
-    //opens images and videos
+    //open expanded image or video
     openImage(imageModel, position) {
 
+        this.body.addClass("invisible-scrollbar");
         this.expandedImage.attr("src", "");
         this.expandedImageContainer.show();
         this.setSelectedImagePosition(position);
         this.fullImageLink = imageModel.url;
-
+        this.expandedImage.attr("title", imageModel.tags.toString().replace(/,/g,"\n"));
         //setting style based on image width
         if (imageModel.isPortrait)
             this.expandedImage.addClass("expanded-tall");
 
         //displaying the image based on what type of image it is
-        //only danbooru has zip, webm, and mp4 files
         switch (imageModel.type) {
             default:
-            case "IMAGE":
+            case 0: //image
                 this.expandedWebM.hide();
                 this.expandedImage.show();
 
@@ -116,22 +116,20 @@ imageContainers.expandedImageContainer = class {
                     this.expandedImage.attr("src", imageModel.url);
                 } else {
                     this.expandedImage.attr("src", imageModel.sampleUrl);
-
-                    this.expandedImage.on("error", function() {
-                        $(this).unbind("error").attr("src", imageModel.sampleUrl.replace("sample/sample-", ""));
-                    });
+                    // this.expandedImage.on("error", function() {
+                    //     $(this).unbind("error").attr("src", imageModel.sampleUrl.replace("sample/sample-", ""));
+                    // });
                 }
                 break;
-            case "ZIP":
-            case "VIDEO":
+            case 2: //zip
+            case 1: //webM
                 this.expandedWebM.show();
                 this.expandedImage.hide();
                 this.expandedImage.attr("src", "");
                 this.expandedWebM.attr("src", imageModel.url);
                 this.expandedWebM[0].play();
                 break;
-
-        }
+        }    
     }
 
     isVisible() {
@@ -143,102 +141,74 @@ imageContainers.expandedImageContainer = class {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //this class deals with the construction of images for the catalog container and their behavior
 imageContainers.catalogContainer = class {
 
-    tagList = [];
-    container = null; //document.getElementById('catalog-container');
-    expandedImageContainer = null;
     parent = this;
+    tagList = [];
+    expandedImageContainer = null;
+    container = $("#catalog-container");;
+    sidebarPreviewImage = $("#sidebar-preview-image");
+    sidebarPreviewImageTmp = $("#sidebar-preview-image-tmp");
+    sidebarPreviewInfo = $("#sidebar-preview-info");
+    sidebarPreviewContainer = $("#sidebar-preview-container");
+    positionCounter = $("#image-position-counter");
 
     constructor(expandedImageContainer) {
         this.expandedImageContainer = expandedImageContainer;
-        this.container = document.getElementById('catalog-container');
-
     }
-
-    hide() {
-        this.container.style.visibility = "hidden";
-    }
-
-    show() {
-        this.container.style.visibility = "visible";
-    }
-
-    isVisible() {
-        return this.container.is(":visible");
-    }
-
-    getTags() {
-        return this.tagList;
-    }
-
-    getNumberOfImages() {
-        return this.container.childElementCount;
-    }
-
-    //removing all images in container
-    clearImages() {
-        this.tagList = [];
-        while (this.container.firstChild) {
-            this.container.removeChild(this.container.firstChild);
-        }
-    }
-
-
-
+    //used to add images to the catalog container
     addImage(imageModel, callback) {
 
+        //hiding broken danbooru images 
+        if(imageModel.previewUrl == "")
+            return;
+
         var parent = this;
-        var catalogItem = document.createElement("div");
-        var image = document.createElement("img");
         var position = this.getNumberOfImages();
+        var image = document.createElement("img");
+        var catalogItem = document.createElement("div");
 
         catalogItem.classList.add("catalog-item");
-
-        if(imageModel.previewUrl == null)
-        	return;
-       
+        image.classList.add("gallery-image");
         image.src = imageModel.previewUrl;
-
+        image.title = imageModel.tags.toString().replace(/,/g,"\n");
+        imageModel.isPortrait ? image.classList.add("catalog-image-tall") : image.classList.add("catalog-image-wide");
         //adding tags to all tag list
         imageModel.tags.forEach(tag => {
             if (!this.tagList.includes(tag))
                 this.tagList.push(tag)
         });
+        //function for creating info rows for sidebar
+        function createImageInfoRow(title, value){
+            return "<b>" + title + ":</b><br>\xa0\xa0" +  value + "<br>";
+        }
+        //showing the sidebar preview container
+        catalogItem.addEventListener("mouseover", event => {
+           
+            this.sidebarPreviewContainer.show();
+            this.sidebarPreviewImageTmp.attr("src", "");
+            this.sidebarPreviewImage.attr("src", "");
+            this.sidebarPreviewImageTmp.attr("src", imageModel.previewUrl);
 
-        image.classList.add("catalog-image-wide");
+            if(imageModel.type == 0)
+                this.sidebarPreviewImage.attr("src", imageModel.sampleUrl);
+            else
+                this.sidebarPreviewImage.attr("src", "./images/play.png");
 
-        if (imageModel.isPortrait)
-            image.classList.add("catalog-image-tall");
+            this.sidebarPreviewInfo.html(
+                createImageInfoRow("Post In", imageModel.booru) + 
+                createImageInfoRow("Post On", imageModel.postDate ) +
+                createImageInfoRow("Rating", imageModel.rating ) +
+                createImageInfoRow("Size", imageModel.size ));
 
-        image.classList.add("gallery-image");
-
-        catalogItem.appendChild(image);
-        this.container.appendChild(catalogItem);
-
+            if(imageModel.copyright != "")
+                this.sidebarPreviewInfo.append(createImageInfoRow("Show", imageModel.copyright));
+        });
+        //hiding the sidebar preview container
+        catalogItem.addEventListener("mouseout", event => {
+            this.sidebarPreviewContainer.hide();
+        });
         //toggling between image tags and catalog tags on middle click
         catalogItem.addEventListener('auxclick', function(event) {
             event.stopPropagation();
@@ -247,16 +217,41 @@ imageContainers.catalogContainer = class {
                 (parent.expandedImageContainer.oldImagePosition === parent.expandedImageContainer.currentImagePosition), imageModel
             ]);
         });
+        //opening expanded image
+        catalogItem.onclick = function(e) {
+            e.stopPropagation();
+            parent.sidebarPreviewContainer.hide();
+            parent.expandedImageContainer.openImage(imageModel, position);
+            parent.positionCounter.text("(" + (position + 1) + "/" + parent.getNumberOfImages()  + ")");
+        }
         //reverting back to catalog tags when middle click on catalog container
-        this.container.addEventListener('auxclick', function(event) {
+        this.container.on('click auxclick contextmenu', function(e) {
             parent.expandedImageContainer.setSelectedImagePosition(position);
             callback.apply(this, [true, -1]);
         });
 
-        // opening expanded image
-        catalogItem.onclick = function() {
-            parent.expandedImageContainer.openImage(imageModel, position);
-        }
-
+        catalogItem.appendChild(image);
+        this.container.append(catalogItem);
     }
+    //returns a list of all tags in the catalog
+    getTags() {
+        return this.tagList;
+    }
+    //returns the number of images in the catalog
+    getNumberOfImages() {
+        return this.container.children().length;
+    }
+    //used to hide until all pages are loaded
+    hide() {
+        this.container.hide();
+    }
+    //used to show after all pages are loaded
+    show() {
+        this.container.show();
+    }
+
+    isVisible() {
+        return this.container.is(":visible");
+    }
+
 }

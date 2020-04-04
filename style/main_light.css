@@ -1,11 +1,11 @@
-
 :root {
     --text-color: #ffffff;
     --image-background-color: #DDDD;
     --highlight-color: #c5c8c6;
     --background-color: #fff;
-    --sidebar-background-color: #4a4e4d;
-    --large-image-background-color: rgba(00, 00, 00, 0.8);
+    --sidebar-background-color: #4a4e4d; /*4a4e4d*/
+    --large-image-background-color: #263238;
+    --large-image-background-text-color: #fe8a71;    
     --header-background-color: #fe8a71;
     --header-border-background-color: #fe8a71;
     --container-background-color: #eee;
