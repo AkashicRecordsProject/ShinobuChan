@@ -7,7 +7,7 @@ $(document).ready(function() {
     var fullImageLink = "";
     var oldTagListSize = 0;
     var siteUrl = window.location.href.split('?')[0];
-    var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || true;
+    var isLightTheme = JSON.parse(localStorage.getItem('isLightTheme')) || false;
     var historyList = JSON.parse(localStorage.getItem("history")) || [];
 
     //creating the setting buttons
@@ -17,7 +17,7 @@ $(document).ready(function() {
     const sfwSettingButton = new buttons.SettingsButton($("#sfw-button"));
     const ecchiSettingButton = new buttons.SettingsButton($("#ecchi-button"));
     const hentaiSettingButton = new buttons.SettingsButton($("#hentai-button"));
-    const fullImageSettingButton = new buttons.SettingsButton($("#full-image-button"), "useFullSizeImage");
+    const fullImageSettingButton = new buttons.SettingsButton($("#full-image-button"));
     const expandedImageContainer = new imageContainers.expandedImageContainer(fullImageSettingButton);
     const catalogContainer = new imageContainers.catalogContainer(expandedImageContainer);
     const booruImages = new booru.images();
@@ -41,10 +41,15 @@ $(document).ready(function() {
     //getting parameters setting values
     $searchbarResolutionSelector.val(getUrlParam("size", 1));
     $searchbar.val(getUrlParam("tags", ""));
+    fullImageSettingButton.setActive(parseInt(getUrlParam("full", 0)));
 
     pageNumber = parseInt(getUrlParam("page", 1));
     pageNumber = pageNumber < 1 ? 1 : pageNumber;
     $pageInput.val(pageNumber);
+    //disabling the previous page button if on first page
+    if(pageNumber == 1)
+     $previousPageButton.addClass("disabled-navigation-button");
+
 
     //loading page
     document.title = "ShinobuChan | Page " + pageNumber + " | " + $searchbar.val().replace(/,/g, ' ');
@@ -83,7 +88,7 @@ $(document).ready(function() {
             updateTagsSelection();
         });
         //preventing shortcut keys from activating when searching
-        if(!$searchbar.is(":focus")) {
+        if(!$searchbar.is(":focus") && !$pageInput.is(":focus")) {
             //f click toggle full image
             if(event.keyCode === 70) {
                 fullImageSettingButton.button.click();
@@ -101,12 +106,12 @@ $(document).ready(function() {
             if(event.keyCode == 67) {
                 clearHistory();
             }
-            //if catalog is showing arrow keys change pages
+            //if catalog is showing
             if(!expandedImageContainer.isVisible()) {
-                //back arrow click go back a page
+                //left arrow click go back a page
                 if(event.keyCode == 37) {
                     $previousPageButton.click();
-                } //forward arrow click go to next page
+                } //right arrow click go to next page
                 else if(event.keyCode == 39) {
                     $nextPageButton.click();
                 } //up arrow click open first image
@@ -140,7 +145,7 @@ $(document).ready(function() {
                     search();
     			}
 
-            } //if expanded image is showing arrow keys change images
+            } //if expanded image is showing
             else {
                 //forward arrow click go to next image
                 if(event.keyCode === 39) {
@@ -156,6 +161,9 @@ $(document).ready(function() {
                 else if(event.keyCode == 32) {
                     event.preventDefault();
                     expandedImageContainer.togglePlayPauseVideo();
+                }
+                else if(event.keyCode == 79) {
+                    expandedImageContainer.openImageInNewTab();
                 }
             }
         }
@@ -188,8 +196,7 @@ $(document).ready(function() {
     //show previous page button if not on first page
     function goToPage(page) {
         pageNumber = parseInt(page);
-        pageNumber <= 1 ? pageNumber = 1 : $previousPageButton.show();
-        loadPage();
+        loadNewPage();
     }
     //assigning the setting buttons using parameters
     function loadSettingButtonsFromParams(){
@@ -233,10 +240,8 @@ $(document).ready(function() {
     }
     //clearing tags from sidebar catalog tags and adding new tags from the tag list
     function createCatalogTagList(tagList) {
-        $sidebarAllTagContainer.empty();
-        $searchBarTags.html("");
-        tagList.sort();
         //adding selected tags to the top of the list
+        tagList.sort();
         tagList = Array.from(new Set([...getSearchBarTags(), ...tagList]));
         tagList.splice(tagList.indexOf(""), 1);
         createTag(tagList, $sidebarAllTagContainer, true);
@@ -261,12 +266,9 @@ $(document).ready(function() {
             button.onclick = function() {
                 //removing selected tags
                 if(getSearchBarTags().includes(tag)){
-                    $searchbar.val($searchbar.val().replace("," + tag, ""));
-                    $searchbar.val($searchbar.val().replace(tag, ""));
-
-                    if($searchbar.val().substring(0,1) == ",")
-                         $searchbar.val($searchbar.val().replace(",", ""));
-
+                    tmpSeach = ""
+                    tmpSeach = getSearchBarTags().filter(e => e !== tag);
+                    $searchbar.val(tmpSeach);
                     this.classList.remove("selected-tag");
                 }//adding new tag to search bar
                 else { 
@@ -327,28 +329,13 @@ $(document).ready(function() {
             });
 
             createCatalogTagList(catalogContainer.getTags());
-
-            $sidebarAllTagContainer.show();
-            $sidebarImageTagContainer.hide();
-            //no images found preventing going to the next page and showing the mascot
+            $sidebarAllTagContainer.fadeIn(300);
+            //no images found disable next page button and show the mascot
             if(catalogContainer.getNumberOfImages() < 1) {
-                $nextPageButton.hide();
+                $nextPageButton.addClass("disabled-navigation-button");
                 $mascot.show();
-            }//not the last page showing next page button 
-            else {
-                $nextPageButton.show();
-                $mascot.hide();
             }
-            //showing the previous button if not on the first page
-            if(pageNumber == 1)
-                $previousPageButton.hide();
-            else
-                $previousPageButton.show();
-        }//hiding the catalog until all pages are loaded
-        else {
-            catalogContainer.hide();
         }
-
     }
     //adding saved history values to the history Selector
     function loadHistory() {
@@ -393,10 +380,10 @@ $(document).ready(function() {
 
         addToHistory($searchbar.val());
         pageNumber = 1;
-        loadPage();
+        loadNewPage();
     }
     //setting the parameters and loading a new page
-    function loadPage() {
+    function loadNewPage() {
 
         siteUrl += "?";
 
@@ -428,6 +415,10 @@ $(document).ready(function() {
             if(hentaiSettingButton.isSelected)
              siteUrl += "h";
         }
+
+        if(fullImageSettingButton.isSelected)
+            siteUrl += "&full=1";
+
          window.location.href = siteUrl;
     }
     //returning a list of searched tags
@@ -469,8 +460,6 @@ $(document).ready(function() {
     }
     //getting json files from booru sites
     function loadBooruPages() {
-        $loading.show();
-        catalogContainer.hide();
         currentImagePosition = 0;
         numberOfPagesLoaded = 0;
         $body.addClass("disable");

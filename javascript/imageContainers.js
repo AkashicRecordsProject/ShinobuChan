@@ -27,7 +27,7 @@ imageContainers.expandedImageContainer = class {
         //open full sized image in new tab on middle click
         this.expandedImage.mouseup(function(e) {
             if (e.which == 2)
-                window.open(parent.fullImageLink, '_blank');
+                parent.openImageInNewTab();
         });
         //go to next image or close view if on last image
         this.expandedImage.click(function(e) {
@@ -49,6 +49,11 @@ imageContainers.expandedImageContainer = class {
           return false;
         });
     }
+    //open image link
+    openImageInNewTab(){
+        window.open(this.fullImageLink, '_blank');
+    }
+
     //this is used to reload the image when switching between full size and sample
     reloadImage() {
         this.expandedImage.attr("src", "");
@@ -97,6 +102,7 @@ imageContainers.expandedImageContainer = class {
 
         this.body.addClass("invisible-scrollbar");
         this.expandedImage.attr("src", "");
+        this.expandedWebM.attr("src", "");
         this.expandedImageContainer.show();
         this.setSelectedImagePosition(position);
         this.fullImageLink = imageModel.url;
@@ -153,6 +159,8 @@ imageContainers.catalogContainer = class {
     sidebarPreviewInfo = $("#sidebar-preview-info");
     sidebarPreviewContainer = $("#sidebar-preview-container");
     positionCounter = $("#image-position-counter");
+    ctrlHeld = false;
+
 
     constructor(expandedImageContainer) {
         this.expandedImageContainer = expandedImageContainer;
@@ -172,7 +180,7 @@ imageContainers.catalogContainer = class {
         catalogItem.classList.add("catalog-item");
         image.classList.add("gallery-image");
         image.src = imageModel.previewUrl;
-        image.title = imageModel.tags.toString().replace(/,/g,"\n");
+        catalogItem.title = imageModel.tags.toString().replace(/,/g,"\n");
         imageModel.isPortrait ? image.classList.add("catalog-image-tall") : image.classList.add("catalog-image-wide");
         //adding tags to all tag list
         imageModel.tags.forEach(tag => {
@@ -184,8 +192,8 @@ imageContainers.catalogContainer = class {
             return "<b>" + title + ":</b><br>\xa0\xa0" +  value + "<br>";
         }
         //showing the sidebar preview container
-        catalogItem.addEventListener("mouseover", event => {
-           
+        catalogItem.addEventListener("mouseenter", event => {
+            event.stopPropagation();
             this.sidebarPreviewContainer.show();
             this.sidebarPreviewImageTmp.attr("src", "");
             this.sidebarPreviewImage.attr("src", "");
@@ -206,7 +214,7 @@ imageContainers.catalogContainer = class {
                 this.sidebarPreviewInfo.append(createImageInfoRow("Show", imageModel.copyright));
         });
         //hiding the sidebar preview container
-        catalogItem.addEventListener("mouseout", event => {
+        catalogItem.addEventListener("mouseleave", event => {
             this.sidebarPreviewContainer.hide();
         });
         //toggling between image tags and catalog tags on middle click
@@ -217,12 +225,32 @@ imageContainers.catalogContainer = class {
                 (parent.expandedImageContainer.oldImagePosition === parent.expandedImageContainer.currentImagePosition), imageModel
             ]);
         });
+
+        $(document).keydown(function(event) {
+            if(event.keyCode == 17) {
+                parent.ctrlHeld = true;
+                return;
+            }
+        });
+
+        $(document).keyup(function(event) {
+            if(event.keyCode == 17) {
+                parent.ctrlHeld = false;
+                return;
+            }
+        });
+
         //opening expanded image
         catalogItem.onclick = function(e) {
             e.stopPropagation();
+            //open image in a new tab instead of expanding it
+            if(parent.ctrlHeld){
+                window.open(imageModel.url, '_blank');
+                return;
+            }
             parent.sidebarPreviewContainer.hide();
             parent.expandedImageContainer.openImage(imageModel, position);
-            parent.positionCounter.text("(" + (position + 1) + "/" + parent.getNumberOfImages()  + ")");
+            parent.positionCounter.text("[" + (position + 1) + "/" + parent.getNumberOfImages()  + "]");
         }
         //reverting back to catalog tags when middle click on catalog container
         this.container.on('click auxclick contextmenu', function(e) {

@@ -1,45 +1,51 @@
 :root {
     --text-color: #ffffff;
-    --image-background-color: #DDDD;
-    --highlight-color: #c5c8c6;
     --background-color: #fff;
-    --sidebar-background-color: #4a4e4d; /*4a4e4d*/
-    --large-image-background-color: #263238;
-    --large-image-background-text-color: #fe8a71;    
-    --header-background-color: #fe8a71;
-    --header-border-background-color: #fe8a71;
-    --container-background-color: #eee;
-    --header-height: 45px;
-    --image-invert: 0;
-    --image-brightness: 0;
-    --clear-button-color: #ff6a7b;
-    --clear-highlight-button-color: #E65162;
-    --search-button-color: #f6cd61;
-    --search-highlight-button-color: #f7d780;
-    --setting-button-color: #b24d49;
-    --setting-highlight-button-color: #ff7d78;
-    --setting-selected-button-color: #ff7d78;
-    --setting-background-color: #414141;
-    --tag-button-color: #5B81A0;
-    --tag-highlight-button-color: #8EB4D3;
-    --tag-selected-button-color: #8EB4D3;
-    user-select: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    --catalog-item-background-color: #DDDD;
+    --header-background-color: #8380b5;
+    --header-border-background-color: #8380b5;
+    --header-button-color: #e2a287;
+    --header-button-hover-color: #ffb798;
+    --header-button-dropdown-background-color: #ffffff;
+    --header-button-dropdown-text-color: #000000;
+    --expanded-image-background-color: #282a2e;
+    --expanded-image-background-text-color: #fa9c80;    
+    --sidebar-background-color: #e6e6e6;
+    --sidebar-preview-background-color: #282a2e;
+    --sidebar-preview-text-color: #ffb798;
+    --sidebar-separator-color: #636e82;
+    --setting-background-color: #e6e6e6;
+    --setting-button--selectedcolor: #cf6855;
+    --setting-button-selected-text-color: #ffffff;
+    --setting-button-selected-hover-color: #e6e6e6;
+    --setting-button-selected-hover-text-color: #fa9c80;
+    --setting-button-unselected-color: #e6e6e6;
+    --setting-button-unselected-text-color: #000000;
+    --setting-button-unselected-hover-color: #fa9c80;
+    --setting-button-unselected-hover-text-color: #ffffff;
+    --tag-button-selected-color: #3773a7;
+    --tag-button-selected-text-color: #e6e6e6;
+    --tag-button-selected-border-color: #3773a7;
+    --tag-button-selected-hover-color: #e6e6e6;
+    --tag-button-selected-hover-text-color: #3773a7;
+    --tag-button-selected-hover-border-color: #3773a7;
+    --tag-button-unselected-color: #e6e6e6;
+    --tag-button-unselected-text-color: #000000;
+    --tag-button-unselected-border-color: #4b9de4;
+    --tag-button-unselected-hover-color: #4b9de4;
+    --tag-button-unselected-hover-text-color: #ffffff;
+    --tag-button-unselected-hover-border-color: #4b9de4;
+    --scrollbar-thumb-color: #3f84c0;
+    --scrollbar-thumb-hover-color: #4b9de4;
+
+    /* #FFA66A #ff8533 #993d00   */ 
+    /* #282a2e #3f84c0 #3773a7 */
+    /* #b3c6ff #809fff #4d79ff */
+    /* #FFA66A #ff8533 #993d00   */
+    /* #FFA66A #ff7d78 #b24d49   */
 
 }
 
 #previous-page-button, #next-page-button{
     filter: none;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #ff7d78;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #888;
 }
